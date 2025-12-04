@@ -44,8 +44,55 @@ const Hero = () => {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 md:pt-32 md:pb-20">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Content */}
-          <div className="text-center lg:text-left">
+          {/* Hero Image - Ahora aparece PRIMERO en móvil */}
+          <div className="relative animate-fade-up order-1 lg:order-2" style={{ animationDelay: "0.1s" }}>
+            <div className="relative aspect-square max-w-lg mx-auto animate-spin-entrance">
+              {/* Decorative ring */}
+              <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20 animate-spin" style={{ animationDuration: "30s" }} />
+              
+              {/* Main image container con transición */}
+              <div className="absolute inset-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden shadow-card">
+                <img
+                  src={currentImage.imagen_url}
+                  alt={currentImage.titulo || "Producto saludable"}
+                  className="w-full h-full object-cover transition-opacity duration-1000"
+                  key={currentImageIndex}
+                />
+              </div>
+              
+              {/* Indicadores del carrusel */}
+              {heroImagenes && heroImagenes.length > 1 && (
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+                  {heroImagenes.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentImageIndex 
+                          ? 'bg-primary w-8' 
+                          : 'bg-primary/30 hover:bg-primary/50'
+                      }`}
+                      aria-label={`Ir a imagen ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Floating badges */}
+              <div className="absolute top-12 -left-4 bg-card rounded-2xl shadow-card px-4 py-3 animate-float">
+                <p className="text-xs text-muted-foreground">Sin Azúcar</p>
+                <p className="font-display font-semibold text-primary">100%</p>
+              </div>
+              
+              <div className="absolute bottom-20 -right-4 bg-card rounded-2xl shadow-card px-4 py-3 animate-float" style={{ animationDelay: "1s" }}>
+                <p className="text-xs text-muted-foreground">Vegano</p>
+                <p className="font-display font-semibold text-accent-foreground">🌱</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Content - Ahora aparece DESPUÉS en móvil */}
+          <div className="text-center lg:text-left order-2 lg:order-1">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 animate-fade-up">
               <Sparkles className="w-4 h-4" />
@@ -95,53 +142,6 @@ const Hero = () => {
                   Puntos de Venta
                 </a>
               </Button>
-            </div>
-          </div>
-
-          {/* Hero Image */}
-          <div className="relative animate-fade-up" style={{ animationDelay: "0.5s" }}>
-            <div className="relative aspect-square max-w-lg mx-auto animate-spin-entrance">
-              {/* Decorative ring */}
-              <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20 animate-spin" style={{ animationDuration: "30s" }} />
-              
-              {/* Main image container con transición */}
-              <div className="absolute inset-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden shadow-card">
-                <img
-                  src={currentImage.imagen_url}
-                  alt={currentImage.titulo || "Producto saludable"}
-                  className="w-full h-full object-cover transition-opacity duration-1000"
-                  key={currentImageIndex}
-                />
-              </div>
-              
-              {/* Indicadores del carrusel */}
-              {heroImagenes && heroImagenes.length > 1 && (
-                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-                  {heroImagenes.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        index === currentImageIndex 
-                          ? 'bg-primary w-8' 
-                          : 'bg-primary/30 hover:bg-primary/50'
-                      }`}
-                      aria-label={`Ir a imagen ${index + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Floating badges */}
-              <div className="absolute top-12 -left-4 bg-card rounded-2xl shadow-card px-4 py-3 animate-float">
-                <p className="text-xs text-muted-foreground">Sin Azúcar</p>
-                <p className="font-display font-semibold text-primary">100%</p>
-              </div>
-              
-              <div className="absolute bottom-20 -right-4 bg-card rounded-2xl shadow-card px-4 py-3 animate-float" style={{ animationDelay: "1s" }}>
-                <p className="text-xs text-muted-foreground">Vegano</p>
-                <p className="font-display font-semibold text-accent-foreground">🌱</p>
-              </div>
             </div>
           </div>
         </div>
