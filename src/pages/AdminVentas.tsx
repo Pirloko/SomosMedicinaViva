@@ -1,0 +1,355 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useVentas, useUpdateVenta, useDeleteVenta } from '@/hooks/useVentas'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { 
+  ArrowLeft, 
+  Plus, 
+  Search, 
+  Loader2, 
+  MoreVertical, 
+  DollarSign,
+  TrendingUp,
+  ShoppingBag,
+  Trash2,
+  AlertTriangle
+} from 'lucide-react'
+
+const AdminVentas = () => {
+  const navigate = useNavigate()
+  const { data: ventas, isLoading } = useVentas()
+  const updateVenta = useUpdateVenta()
+  const deleteVenta = useDeleteVenta()
+  
+  const [searchTerm, setSearchTerm] = useState('')
+  const [estadoFilter, setEstadoFilter] = useState('all')
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+
+  // Filtrar ventas
+  const filteredVentas = ventas?.filter(venta => {
+    const matchSearch = 
+      venta.cliente_nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      venta.cliente_telefono?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (venta.productos as any)?.nombre?.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchEstado = estadoFilter === 'all' || venta.estado === estadoFilter
+
+    return matchSearch && matchEstado
+  })
+
+  // Estadísticas
+  const totalVentas = ventas?.length || 0
+  const totalIngresos = ventas?.reduce((sum, v) => sum + Number(v.total), 0) || 0
+  const ventasPendientes = ventas?.filter(v => v.estado === 'pendiente').length || 0
+
+  const getEstadoBadge = (estado: string) => {
+    const badges: Record<string, { variant: any; color: string }> = {
+      pendiente: { variant: 'secondary', color: 'bg-yellow-100 text-yellow-700' },
+      confirmado: { variant: 'secondary', color: 'bg-blue-100 text-blue-700' },
+      preparando: { variant: 'secondary', color: 'bg-purple-100 text-purple-700' },
+      enviado: { variant: 'secondary', color: 'bg-indigo-100 text-indigo-700' },
+      entregado: { variant: 'secondary', color: 'bg-green-100 text-green-700' },
+      cancelado: { variant: 'destructive', color: 'bg-red-100 text-red-700' },
+    }
+    
+    const badge = badges[estado] || badges.pendiente
+    return <Badge className={badge.color}>{estado}</Badge>
+  }
+
+  const handleCambiarEstado = async (ventaId: string, nuevoEstado: string) => {
+    await updateVenta.mutateAsync({
+      id: ventaId,
+      updates: { estado: nuevoEstado },
+    })
+  }
+
+  const handleDelete = async () => {
+    if (deleteId) {
+      await deleteVenta.mutateAsync(deleteId)
+      setDeleteId(null)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b bg-card sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver
+              </Button>
+              <div>
+                <h1 className="font-display text-xl font-semibold text-foreground">
+                  Gestión de Ventas
+                </h1>
+                <p className="text-xs text-muted-foreground">
+                  {totalVentas} ventas · {ventasPendientes} pendientes
+                </p>
+              </div>
+            </div>
+            <Button onClick={() => navigate('/admin/ventas/nueva')}>
+              <Plus className="w-4 h-4 mr-2" />
+              Registrar Venta
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats Cards */}
+        <div className="grid sm:grid-cols-3 gap-4 mb-6">
+          <div className="bg-card rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Total Ventas</p>
+                <p className="text-2xl font-bold text-foreground">{totalVentas}</p>
+              </div>
+              <ShoppingBag className="w-8 h-8 text-blue-500" />
+            </div>
+          </div>
+          <div className="bg-card rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Ingresos Totales</p>
+                <p className="text-2xl font-bold text-foreground">
+                  ${totalIngresos.toLocaleString('es-CL')}
+                </p>
+              </div>
+              <DollarSign className="w-8 h-8 text-green-500" />
+            </div>
+          </div>
+          <div className="bg-card rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Pendientes</p>
+                <p className="text-2xl font-bold text-foreground">{ventasPendientes}</p>
+              </div>
+              <TrendingUp className="w-8 h-8 text-orange-500" />
+            </div>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="grid sm:grid-cols-2 gap-4 mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Buscar por cliente, teléfono o producto..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={estadoFilter} onValueChange={setEstadoFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filtrar por estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              <SelectItem value="pendiente">Pendiente</SelectItem>
+              <SelectItem value="confirmado">Confirmado</SelectItem>
+              <SelectItem value="preparando">Preparando</SelectItem>
+              <SelectItem value="enviado">Enviado</SelectItem>
+              <SelectItem value="entregado">Entregado</SelectItem>
+              <SelectItem value="cancelado">Cancelado</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        )}
+
+        {/* Ventas Table */}
+        {!isLoading && filteredVentas && (
+          <div className="bg-card rounded-xl border shadow-sm overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Producto</TableHead>
+                  <TableHead>Cantidad</TableHead>
+                  <TableHead>Total</TableHead>
+                  <TableHead>Zona</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredVentas.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-10 text-muted-foreground">
+                      No se encontraron ventas
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredVentas.map((venta) => (
+                    <TableRow key={venta.id}>
+                      <TableCell>
+                        <div className="text-sm">
+                          <p className="font-medium">
+                            {new Date(venta.fecha_venta).toLocaleDateString('es-CL', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(venta.fecha_venta).toLocaleTimeString('es-CL', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <p className="font-medium">{venta.cliente_nombre || 'Sin nombre'}</p>
+                          {venta.cliente_telefono && (
+                            <p className="text-xs text-muted-foreground">{venta.cliente_telefono}</p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {(venta.productos as any)?.imagen_url && (
+                            <img
+                              src={(venta.productos as any).imagen_url}
+                              alt={(venta.productos as any)?.nombre}
+                              className="w-10 h-10 object-cover rounded-lg"
+                            />
+                          )}
+                          <p className="text-sm font-medium">
+                            {(venta.productos as any)?.nombre || 'Producto eliminado'}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{venta.cantidad}x</Badge>
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        ${venta.total.toLocaleString('es-CL')}
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm text-muted-foreground">{venta.zona_delivery || '-'}</p>
+                      </TableCell>
+                      <TableCell>
+                        {getEstadoBadge(venta.estado)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleCambiarEstado(venta.id, 'confirmado')}>
+                              Marcar como Confirmado
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCambiarEstado(venta.id, 'preparando')}>
+                              Marcar como Preparando
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCambiarEstado(venta.id, 'enviado')}>
+                              Marcar como Enviado
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCambiarEstado(venta.id, 'entregado')}>
+                              Marcar como Entregado
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleCambiarEstado(venta.id, 'cancelado')}>
+                              Marcar como Cancelado
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => setDeleteId(venta.id)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Eliminar Venta
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </main>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              ¿Eliminar venta?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p className="font-semibold">⚠️ Esta acción NO se puede deshacer.</p>
+              <p>La venta será eliminada completamente de la base de datos y no se incluirá en las métricas.</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Sí, Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  )
+}
+
+export default AdminVentas
+
