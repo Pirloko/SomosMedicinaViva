@@ -43,9 +43,11 @@ const Hero = () => {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 md:pt-32 md:pb-20">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Hero Image - Ahora aparece PRIMERO en móvil */}
-          <div className="relative animate-fade-up order-1 lg:order-2" style={{ animationDelay: "0.1s" }}>
+        {/* Layout vertical centrado */}
+        <div className="flex flex-col items-center text-center space-y-8 md:space-y-12">
+          
+          {/* PARTE 1: Textos y Features */}
+          <div className="w-full max-w-4xl space-y-6 md:space-y-8">
             <div className="relative aspect-square max-w-lg mx-auto animate-spin-entrance">
               {/* Decorative ring */}
               <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20 animate-spin" style={{ animationDuration: "30s" }} />
@@ -91,27 +93,25 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Content - Ahora aparece DESPUÉS en móvil */}
-          <div className="text-center lg:text-left order-2 lg:order-1">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 animate-fade-up">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium animate-fade-up">
               <Sparkles className="w-4 h-4" />
               <span>100% Natural y Artesanal</span>
             </div>
 
             {/* Headline */}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight mb-6 animate-fade-up" style={{ animationDelay: "0.1s" }}>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight animate-fade-up" style={{ animationDelay: "0.1s" }}>
               Pastelería{" "}
               <span className="text-primary">Saludable</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 animate-fade-up" style={{ animationDelay: "0.2s" }}>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-up" style={{ animationDelay: "0.2s" }}>
               Sin azúcar · Sin gluten · Sin refinados · 100% Vegana
             </p>
 
             {/* Features */}
-            <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-10 animate-fade-up" style={{ animationDelay: "0.3s" }}>
+            <div className="flex flex-wrap justify-center gap-3 animate-fade-up" style={{ animationDelay: "0.3s" }}>
               {[
                 { icon: Heart, text: "Apto diabéticos" },
                 { icon: Leaf, text: "Vegano" },
@@ -126,23 +126,70 @@ const Hero = () => {
                 </div>
               ))}
             </div>
+          </div>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-up" style={{ animationDelay: "0.4s" }}>
-              <Button variant="whatsapp" size="xl" onClick={handleWhatsApp}>
-                <MessageCircle className="w-5 h-5" />
-                Pedir por WhatsApp
-              </Button>
-              <Button variant="outline" size="xl" asChild>
-                <a href="#catalogo">Ver Catálogo</a>
-              </Button>
-              <Button variant="outline" size="xl" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
-                <a href="#puntos-venta">
-                  <MapPin className="w-5 h-5" />
-                  Puntos de Venta
-                </a>
-              </Button>
+          {/* PARTE 2: Imagen del Carrusel */}
+          <div className="relative animate-fade-up w-full max-w-lg" style={{ animationDelay: "0.4s" }}>
+            <div className="relative aspect-square mx-auto animate-spin-entrance">
+              {/* Decorative ring */}
+              <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20 animate-spin" style={{ animationDuration: "30s" }} />
+              
+              {/* Main image container con transición */}
+              <div className="absolute inset-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden shadow-card">
+                <img
+                  src={currentImage.imagen_url}
+                  alt={currentImage.titulo || "Producto saludable"}
+                  className="w-full h-full object-cover transition-opacity duration-1000"
+                  key={currentImageIndex}
+                />
+              </div>
+              
+              {/* Indicadores del carrusel */}
+              {heroImagenes && heroImagenes.length > 1 && (
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+                  {heroImagenes.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentImageIndex 
+                          ? 'bg-primary w-8' 
+                          : 'bg-primary/30 hover:bg-primary/50'
+                      }`}
+                      aria-label={`Ir a imagen ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Floating badges */}
+              <div className="absolute top-12 -left-4 bg-card rounded-2xl shadow-card px-4 py-3 animate-float">
+                <p className="text-xs text-muted-foreground">Sin Azúcar</p>
+                <p className="font-display font-semibold text-primary">100%</p>
+              </div>
+              
+              <div className="absolute bottom-20 -right-4 bg-card rounded-2xl shadow-card px-4 py-3 animate-float" style={{ animationDelay: "1s" }}>
+                <p className="text-xs text-muted-foreground">Vegano</p>
+                <p className="font-display font-semibold text-accent-foreground">🌱</p>
+              </div>
             </div>
+          </div>
+
+          {/* PARTE 3: Botones CTA */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up" style={{ animationDelay: "0.5s" }}>
+            <Button variant="whatsapp" size="xl" onClick={handleWhatsApp}>
+              <MessageCircle className="w-5 h-5" />
+              Pedir por WhatsApp
+            </Button>
+            <Button variant="outline" size="xl" asChild>
+              <a href="#catalogo">Ver Catálogo</a>
+            </Button>
+            <Button variant="outline" size="xl" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
+              <a href="#puntos-venta">
+                <MapPin className="w-5 h-5" />
+                Puntos de Venta
+              </a>
+            </Button>
           </div>
         </div>
       </div>
