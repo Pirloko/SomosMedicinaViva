@@ -24,7 +24,7 @@ const Catalog = () => {
   const { data: categorias } = useCategorias();
 
   const handleWhatsApp = (product: Product) => {
-    const message = `Hola! Me interesa el producto: ${product.nombre} - $${product.precio.toLocaleString('es-CL')}`
+    const message = `Hola, acabo de visitar somosmedicinaviva.cl y me gustaría realizar un pedido`
     window.open(`https://wa.me/56978738705?text=${encodeURIComponent(message)}`, "_blank")
   };
 
