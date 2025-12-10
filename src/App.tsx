@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -30,6 +30,35 @@ import { checkSupabaseConnection } from "@/lib/supabase";
 
 const queryClient = new QueryClient();
 
+// Componente para cambiar título y favicon según la ruta
+const DocumentTitle = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname === '/login';
+
+  useEffect(() => {
+    // Cambiar título
+    if (isAdminRoute) {
+      document.title = 'Panel Admin | Medicina Viva';
+    } else {
+      document.title = 'Medicina Viva | Pastelería Saludable - Sin azúcar, sin gluten, vegana';
+    }
+
+    // Cambiar favicon
+    let favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+    if (!favicon) {
+      favicon = document.createElement('link');
+      favicon.rel = 'icon';
+      document.head.appendChild(favicon);
+    }
+    
+    // Usar el mismo logo para admin (puedes cambiar esto si tienes un favicon específico)
+    favicon.href = '/imagen/logoMedicinaVida.png';
+    favicon.type = 'image/png';
+  }, [isAdminRoute, location.pathname]);
+
+  return null;
+};
+
 const App = () => {
   useEffect(() => {
     // Verificar conexión con Supabase al iniciar
@@ -43,6 +72,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <DocumentTitle />
             <Routes>
               {/* Rutas Públicas */}
               <Route path="/" element={<Index />} />

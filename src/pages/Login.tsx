@@ -120,13 +120,6 @@ const Login = () => {
               Volver al inicio
             </Button>
           </form>
-
-          {/* Info de desarrollo */}
-          <div className="mt-6 p-4 bg-muted/50 rounded-lg text-xs text-muted-foreground">
-            <p className="font-semibold mb-1">📝 Nota de desarrollo:</p>
-            <p>Por ahora debes crear el usuario admin directamente en Supabase.</p>
-            <p className="mt-1">Ve a: Authentication → Users → Add user</p>
-          </div>
         </CardContent>
       </Card>
     </div>
