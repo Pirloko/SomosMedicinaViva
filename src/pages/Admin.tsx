@@ -184,8 +184,8 @@ const Admin = () => {
           </CardHeader>
         </Card>
 
-        {/* Alertas de Mensajes de Contacto */}
-        {contactos && contactos.length > 0 && (
+        {/* Alertas de Mensajes de Contacto - Solo se muestra si hay pendientes */}
+        {contactosPendientes > 0 && (
           <Card className="mb-8 border-blue-200 bg-blue-50">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -195,10 +195,10 @@ const Admin = () => {
                   </div>
                   <div>
                     <CardTitle className="text-blue-900">
-                      💬 Mensajes de Contacto
+                      💬 Mensajes de Contacto Pendientes
                     </CardTitle>
                     <CardDescription className="text-blue-700">
-                      {contactos.length} {contactos.length === 1 ? 'mensaje recibido' : 'mensajes recibidos'} · {contactosNoLeidos} sin leer · {contactosPendientes} pendientes
+                      {contactosPendientes} {contactosPendientes === 1 ? 'mensaje pendiente' : 'mensajes pendientes'} · {contactosNoLeidos} sin leer
                     </CardDescription>
                   </div>
                 </div>
@@ -214,7 +214,10 @@ const Admin = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {contactos.slice(0, 3).map((contacto) => (
+                {contactos
+                  .filter(contacto => !contacto.respondido)
+                  .slice(0, 3)
+                  .map((contacto) => (
                   <div 
                     key={contacto.id}
                     className="flex items-center justify-between p-3 bg-white rounded-lg border border-blue-200"
@@ -225,11 +228,6 @@ const Admin = () => {
                         {!contacto.leido && (
                           <Badge variant="default" className="text-xs">
                             Nuevo
-                          </Badge>
-                        )}
-                        {contacto.respondido && (
-                          <Badge variant="outline" className="text-xs text-green-600">
-                            Respondido
                           </Badge>
                         )}
                         {!contacto.respondido && (
@@ -252,9 +250,9 @@ const Admin = () => {
                     </div>
                   </div>
                 ))}
-                {contactos.length > 3 && (
+                {contactosPendientes > 3 && (
                   <p className="text-center text-sm text-blue-600 pt-2">
-                    + {contactos.length - 3} mensajes más
+                    + {contactosPendientes - 3} mensajes pendientes más
                   </p>
                 )}
               </div>
