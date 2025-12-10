@@ -160,21 +160,15 @@ const AdminContactos = () => {
                       className={!contacto.leido ? 'bg-primary/5' : ''}
                     >
                       <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <Badge variant={contacto.leido ? 'secondary' : 'default'} className="w-fit">
-                            {contacto.leido ? 'Leído' : 'Nuevo'}
+                        {contacto.respondido ? (
+                          <Badge variant="outline" className="w-fit text-green-600 border-green-600">
+                            ✓ Respondido
                           </Badge>
-                          {contacto.respondido && (
-                            <Badge variant="outline" className="w-fit text-green-600 border-green-600">
-                              ✓ Respondido
-                            </Badge>
-                          )}
-                          {!contacto.respondido && (
-                            <Badge variant="outline" className="w-fit text-orange-600 border-orange-600">
-                              ⏳ Pendiente
-                            </Badge>
-                          )}
-                        </div>
+                        ) : (
+                          <Badge variant="outline" className="w-fit text-orange-600 border-orange-600">
+                            ⏳ Pendiente
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell>
                         <p className="font-medium">{contacto.nombre}</p>
@@ -244,33 +238,28 @@ const AdminContactos = () => {
                               <MessageCircle className="w-4 h-4" />
                             </Button>
                           )}
-                          <Button
-                            variant={contacto.respondido ? "outline" : "default"}
-                            size="sm"
-                            onClick={() => {
-                              updateContacto.mutate({
-                                id: contacto.id,
-                                updates: { respondido: !contacto.respondido }
-                              })
-                            }}
-                            className={contacto.respondido 
-                              ? "border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700"
-                              : "bg-green-500 text-white hover:bg-green-600"
-                            }
-                            title={contacto.respondido ? "Marcar como Pendiente" : "Marcar como Respondido"}
-                          >
-                            {contacto.respondido ? (
-                              <>
-                                <Clock className="w-4 h-4 mr-1" />
-                                Pendiente
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Respondido
-                              </>
-                            )}
-                          </Button>
+                          {!contacto.respondido && (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => {
+                                updateContacto.mutate({
+                                  id: contacto.id,
+                                  updates: { respondido: true }
+                                })
+                              }}
+                              className="bg-green-500 text-white hover:bg-green-600"
+                              title="Marcar como Respondido"
+                            >
+                              <CheckCircle className="w-4 h-4 mr-1" />
+                              Respondido
+                            </Button>
+                          )}
+                          {contacto.respondido && (
+                            <Badge variant="outline" className="text-green-600 border-green-600 px-3 py-1.5">
+                              ✓ Respondido
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -326,35 +315,31 @@ const AdminContactos = () => {
               <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-2">Estado</p>
-                  <button
-                    onClick={() => {
-                      updateContacto.mutate({
-                        id: selectedContacto.id,
-                        updates: { respondido: !selectedContacto.respondido }
-                      })
-                      // Actualizar el estado local para reflejar el cambio inmediatamente
-                      setSelectedContacto({
-                        ...selectedContacto,
-                        respondido: !selectedContacto.respondido
-                      })
-                    }}
-                  >
-                    {selectedContacto.respondido ? (
-                      <Badge variant="outline" className="text-green-600 border-green-600 cursor-pointer hover:bg-green-50 px-4 py-2">
-                        ✓ Respondido
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-orange-600 border-orange-600 cursor-pointer hover:bg-orange-50 px-4 py-2">
-                        ⏳ Pendiente
-                      </Badge>
-                    )}
-                  </button>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">Leído</p>
-                  <Badge variant={selectedContacto.leido ? 'secondary' : 'default'}>
-                    {selectedContacto.leido ? 'Leído' : 'Nuevo'}
-                  </Badge>
+                  {selectedContacto.respondido ? (
+                    <Badge variant="outline" className="text-green-600 border-green-600 px-4 py-2">
+                      ✓ Respondido
+                    </Badge>
+                  ) : (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => {
+                        updateContacto.mutate({
+                          id: selectedContacto.id,
+                          updates: { respondido: true }
+                        })
+                        // Actualizar el estado local para reflejar el cambio inmediatamente
+                        setSelectedContacto({
+                          ...selectedContacto,
+                          respondido: true
+                        })
+                      }}
+                      className="bg-green-500 text-white hover:bg-green-600"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      Marcar como Respondido
+                    </Button>
+                  )}
                 </div>
               </div>
 
