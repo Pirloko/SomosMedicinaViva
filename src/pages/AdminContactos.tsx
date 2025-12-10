@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ArrowLeft, Loader2, Mail, Phone, MessageSquare, Check, X } from 'lucide-react'
+import { ArrowLeft, Loader2, Mail, Phone, MessageSquare, Check, X, MessageCircle, Eye } from 'lucide-react'
 import { Database } from '@/types/database.types'
 
 type Contacto = Database['public']['Tables']['contactos']['Row']
@@ -66,6 +66,32 @@ const AdminContactos = () => {
       })
       setSelectedContacto(null)
     }
+  }
+
+  const handleResponderWhatsApp = (contacto: Contacto) => {
+    if (!contacto.telefono) return
+    
+    // Formatear número de teléfono chileno para WhatsApp
+    // Eliminar espacios, guiones, paréntesis y el + si existe
+    let numero = contacto.telefono.replace(/\D/g, '')
+    
+    // Si el número empieza con 56 (código de país), mantenerlo
+    // Si empieza con 9, agregar 56 al inicio
+    // Si empieza con otro número, asumir que es número chileno y agregar 569
+    if (numero.startsWith('56')) {
+      // Ya tiene código de país
+    } else if (numero.startsWith('9')) {
+      numero = '56' + numero
+    } else {
+      // Número local, agregar código de país y 9
+      numero = '569' + numero
+    }
+    
+    // Crear mensaje inicial con información del contacto
+    const mensajeInicial = `Hola ${contacto.nombre}! 👋\n\nGracias por contactarnos a través de somosmedicinaviva.cl.\n\nVeo que tu consulta es:\n"${contacto.mensaje}"\n\n¿En qué puedo ayudarte?`
+    
+    const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensajeInicial)}`
+    window.open(url, '_blank')
   }
 
   return (
@@ -186,6 +212,7 @@ const AdminContactos = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleToggleLeido(contacto)}
+                            title={contacto.leido ? "Marcar como no leído" : "Marcar como leído"}
                           >
                             {contacto.leido ? (
                               <X className="w-4 h-4" />
@@ -197,9 +224,21 @@ const AdminContactos = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => handleOpenDialog(contacto)}
+                            title="Ver mensaje completo"
                           >
-                            <MessageSquare className="w-4 h-4" />
+                            <Eye className="w-4 h-4" />
                           </Button>
+                          {contacto.telefono && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleResponderWhatsApp(contacto)}
+                              className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                              title="Responder por WhatsApp"
+                            >
+                              <MessageCircle className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -263,21 +302,24 @@ const AdminContactos = () => {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-between pt-4">
+              <div className="flex items-center justify-between pt-4 border-t">
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    const message = `Hola ${selectedContacto.nombre}! Gracias por contactarnos.`
-                    window.open(`https://wa.me/${selectedContacto.telefono?.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
-                  }}
+                  onClick={() => handleResponderWhatsApp(selectedContacto)}
                   disabled={!selectedContacto.telefono}
+                  className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Responder por WhatsApp
                 </Button>
-                <Button onClick={handleSaveNotas}>
-                  Guardar Notas
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setSelectedContacto(null)}>
+                    Cerrar
+                  </Button>
+                  <Button onClick={handleSaveNotas}>
+                    Guardar Notas
+                  </Button>
+                </div>
               </div>
             </div>
           )}
