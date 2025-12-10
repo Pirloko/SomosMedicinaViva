@@ -17,7 +17,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleWhatsApp = () => {
-    window.open("https://wa.me/56912345678?text=Hola!%20Me%20interesa%20hacer%20un%20pedido", "_blank");
+    window.open("https://wa.me/56978738705?text=Hola!%20Me%20interesa%20hacer%20un%20pedido", "_blank");
   };
 
   return (

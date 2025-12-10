@@ -215,7 +215,7 @@ const AdminVentaForm = () => {
                     <Input
                       id="cliente_telefono"
                       {...register('cliente_telefono')}
-                      placeholder="+56 9 1234 5678"
+                      placeholder="+56 9 7873 8705"
                     />
                   </div>
                   <div className="space-y-2">

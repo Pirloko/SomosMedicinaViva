@@ -115,7 +115,7 @@ const PickupPoints = () => {
               </p>
               <Button 
                 variant="whatsapp"
-                onClick={() => window.open("https://wa.me/56912345678?text=Hola!%20Me%20interesa%20ser%20punto%20de%20venta", "_blank")}
+                onClick={() => window.open("https://wa.me/56978738705?text=Hola!%20Me%20interesa%20ser%20punto%20de%20venta", "_blank")}
               >
                 <Store className="w-5 h-5" />
                 Quiero ser Punto de Venta

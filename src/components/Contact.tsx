@@ -33,7 +33,7 @@ const Contact = () => {
 
       // Abrir WhatsApp
       const message = `Hola! Me llamo ${formData.name}.%0A%0AEmail: ${formData.email}%0ATeléfono: ${formData.phone}%0A%0AMensaje: ${formData.message}`;
-      window.open(`https://wa.me/56912345678?text=${message}`, "_blank");
+      window.open(`https://wa.me/56978738705?text=${message}`, "_blank");
 
       // Limpiar formulario
       setFormData({ name: "", email: "", phone: "", message: "" });
@@ -43,7 +43,7 @@ const Contact = () => {
   };
 
   const handleWhatsApp = () => {
-    window.open("https://wa.me/56912345678?text=Hola!%20Me%20interesa%20hacer%20un%20pedido", "_blank");
+    window.open("https://wa.me/56978738705?text=Hola!%20Me%20interesa%20hacer%20un%20pedido", "_blank");
   };
 
   return (
@@ -112,7 +112,7 @@ const Contact = () => {
                     type="tel"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="+56 9 1234 5678"
+                    placeholder="+56 9 7873 8705"
                     className="h-12 rounded-xl"
                   />
                 </div>
@@ -191,7 +191,7 @@ const Contact = () => {
                 </a>
 
                 <a
-                  href="mailto:hola@medicinaviva.com"
+                  href="mailto:Smv.informaciones@gmail.com"
                   className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl hover:bg-muted transition-colors group"
                 >
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -199,7 +199,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                      hola@medicinaviva.com
+                      Smv.informaciones@gmail.com
                     </p>
                     <p className="text-sm text-muted-foreground">Escríbenos un email</p>
                   </div>
@@ -210,7 +210,7 @@ const Contact = () => {
                     <Phone className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">+56 9 1234 5678</p>
+                    <p className="font-medium text-foreground">+56 9 7873 8705</p>
                     <p className="text-sm text-muted-foreground">WhatsApp disponible</p>
                   </div>
                 </div>

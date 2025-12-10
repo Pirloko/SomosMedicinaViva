@@ -25,7 +25,7 @@ const Catalog = () => {
 
   const handleWhatsApp = (product: Product) => {
     const message = `Hola! Me interesa el producto: ${product.nombre} - $${product.precio.toLocaleString('es-CL')}`
-    window.open(`https://wa.me/56912345678?text=${encodeURIComponent(message)}`, "_blank")
+    window.open(`https://wa.me/56978738705?text=${encodeURIComponent(message)}`, "_blank")
   };
 
   return (
