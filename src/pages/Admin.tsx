@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { useNavigate } from 'react-router-dom'
 import { useIngredientesCriticos } from '@/hooks/useIngredientes'
 import { useProductosCriticos } from '@/hooks/useStock'
+import { useContactos } from '@/hooks/useContactos'
 import { 
   LogOut, 
   ShoppingBag, 
@@ -28,6 +29,10 @@ const Admin = () => {
   const navigate = useNavigate()
   const { data: ingredientesCriticos } = useIngredientesCriticos()
   const { data: productosCriticos } = useProductosCriticos()
+  const { data: contactos } = useContactos()
+  
+  const contactosNoLeidos = contactos?.filter(c => !c.leido).length || 0
+  const contactosPendientes = contactos?.filter(c => !c.respondido).length || 0
 
   const handleSignOut = async () => {
     await signOut()
@@ -178,6 +183,84 @@ const Admin = () => {
             </CardDescription>
           </CardHeader>
         </Card>
+
+        {/* Alertas de Mensajes de Contacto */}
+        {contactos && contactos.length > 0 && (
+          <Card className="mb-8 border-blue-200 bg-blue-50">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-blue-500 flex items-center justify-center text-white">
+                    <MessageSquare className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-blue-900">
+                      💬 Mensajes de Contacto
+                    </CardTitle>
+                    <CardDescription className="text-blue-700">
+                      {contactos.length} {contactos.length === 1 ? 'mensaje recibido' : 'mensajes recibidos'} · {contactosNoLeidos} sin leer · {contactosPendientes} pendientes
+                    </CardDescription>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate('/admin/contactos')}
+                  className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                >
+                  Ver Mensajes
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {contactos.slice(0, 3).map((contacto) => (
+                  <div 
+                    key={contacto.id}
+                    className="flex items-center justify-between p-3 bg-white rounded-lg border border-blue-200"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-medium text-foreground">{contacto.nombre}</p>
+                        {!contacto.leido && (
+                          <Badge variant="default" className="text-xs">
+                            Nuevo
+                          </Badge>
+                        )}
+                        {contacto.respondido && (
+                          <Badge variant="outline" className="text-xs text-green-600">
+                            Respondido
+                          </Badge>
+                        )}
+                        {!contacto.respondido && (
+                          <Badge variant="outline" className="text-xs text-orange-600">
+                            Pendiente
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {contacto.mensaje}
+                      </p>
+                    </div>
+                    <div className="text-right ml-4">
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(contacto.created_at).toLocaleDateString('es-CL', {
+                          day: '2-digit',
+                          month: 'short',
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {contactos.length > 3 && (
+                  <p className="text-center text-sm text-blue-600 pt-2">
+                    + {contactos.length - 3} mensajes más
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Alertas de Stock Crítico */}
         {ingredientesCriticos && ingredientesCriticos.length > 0 && (
