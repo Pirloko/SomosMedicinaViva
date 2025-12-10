@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ArrowLeft, Loader2, Mail, Phone, MessageSquare, Check, X, MessageCircle, Eye } from 'lucide-react'
+import { ArrowLeft, Loader2, Mail, Phone, MessageSquare, Check, X, MessageCircle, Eye, CheckCircle, Clock } from 'lucide-react'
 import { Database } from '@/types/database.types'
 
 type Contacto = Database['public']['Tables']['contactos']['Row']
@@ -164,25 +164,16 @@ const AdminContactos = () => {
                           <Badge variant={contacto.leido ? 'secondary' : 'default'} className="w-fit">
                             {contacto.leido ? 'Leído' : 'Nuevo'}
                           </Badge>
-                          <button
-                            onClick={() => {
-                              updateContacto.mutate({
-                                id: contacto.id,
-                                updates: { respondido: !contacto.respondido }
-                              })
-                            }}
-                            className="mt-1"
-                          >
-                            {contacto.respondido ? (
-                              <Badge variant="outline" className="w-fit text-green-600 border-green-600 cursor-pointer hover:bg-green-50">
-                                ✓ Respondido
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="w-fit text-orange-600 border-orange-600 cursor-pointer hover:bg-orange-50">
-                                ⏳ Pendiente
-                              </Badge>
-                            )}
-                          </button>
+                          {contacto.respondido && (
+                            <Badge variant="outline" className="w-fit text-green-600 border-green-600">
+                              ✓ Respondido
+                            </Badge>
+                          )}
+                          {!contacto.respondido && (
+                            <Badge variant="outline" className="w-fit text-orange-600 border-orange-600">
+                              ⏳ Pendiente
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -253,6 +244,33 @@ const AdminContactos = () => {
                               <MessageCircle className="w-4 h-4" />
                             </Button>
                           )}
+                          <Button
+                            variant={contacto.respondido ? "outline" : "default"}
+                            size="sm"
+                            onClick={() => {
+                              updateContacto.mutate({
+                                id: contacto.id,
+                                updates: { respondido: !contacto.respondido }
+                              })
+                            }}
+                            className={contacto.respondido 
+                              ? "border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+                              : "bg-green-500 text-white hover:bg-green-600"
+                            }
+                            title={contacto.respondido ? "Marcar como Pendiente" : "Marcar como Respondido"}
+                          >
+                            {contacto.respondido ? (
+                              <>
+                                <Clock className="w-4 h-4 mr-1" />
+                                Pendiente
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-4 h-4 mr-1" />
+                                Respondido
+                              </>
+                            )}
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
