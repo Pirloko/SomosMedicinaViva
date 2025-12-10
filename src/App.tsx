@@ -43,17 +43,46 @@ const DocumentTitle = () => {
       document.title = 'Medicina Viva | Pastelería Saludable - Sin azúcar, sin gluten, vegana';
     }
 
-    // Cambiar favicon
-    let favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
-    if (!favicon) {
-      favicon = document.createElement('link');
-      favicon.rel = 'icon';
-      document.head.appendChild(favicon);
-    }
+    // Cambiar favicon dinámicamente
+    const updateFavicon = (href: string) => {
+      // Eliminar todos los favicons existentes
+      const existingFavicons = document.querySelectorAll("link[rel='icon'], link[rel='shortcut icon'], link[rel='apple-touch-icon']");
+      existingFavicons.forEach(link => link.remove());
+      
+      // Agregar timestamp para forzar recarga
+      const timestamp = new Date().getTime();
+      const hrefWithCache = `${href}?v=${timestamp}`;
+      
+      // Crear nuevos favicons
+      const favicon32 = document.createElement('link');
+      favicon32.rel = 'icon';
+      favicon32.type = 'image/png';
+      favicon32.sizes = '32x32';
+      favicon32.href = hrefWithCache;
+      document.head.appendChild(favicon32);
+      
+      const favicon16 = document.createElement('link');
+      favicon16.rel = 'icon';
+      favicon16.type = 'image/png';
+      favicon16.sizes = '16x16';
+      favicon16.href = hrefWithCache;
+      document.head.appendChild(favicon16);
+      
+      const shortcutIcon = document.createElement('link');
+      shortcutIcon.rel = 'shortcut icon';
+      shortcutIcon.type = 'image/png';
+      shortcutIcon.href = hrefWithCache;
+      document.head.appendChild(shortcutIcon);
+      
+      const appleIcon = document.createElement('link');
+      appleIcon.rel = 'apple-touch-icon';
+      appleIcon.sizes = '180x180';
+      appleIcon.href = hrefWithCache;
+      document.head.appendChild(appleIcon);
+    };
     
-    // Usar el mismo logo para admin (puedes cambiar esto si tienes un favicon específico)
-    favicon.href = '/imagen/logoMedicinaVida.png';
-    favicon.type = 'image/png';
+    // Usar el logo de Medicina Viva
+    updateFavicon('/imagen/logoMedicinaVida.png');
   }, [isAdminRoute, location.pathname]);
 
   return null;
