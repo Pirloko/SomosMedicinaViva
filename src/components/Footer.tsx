@@ -88,9 +88,22 @@ const Footer = () => {
           <p className="text-sm text-background/60">
             © {currentYear} Medicina Viva. Todos los derechos reservados.
           </p>
-          <p className="text-sm text-background/60 flex items-center gap-1">
-            Hecho con <Heart className="w-4 h-4 text-primary fill-primary" /> en Chile
-          </p>
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <p className="text-sm text-background/60 flex items-center gap-1">
+              Hecho con <Heart className="w-4 h-4 text-primary fill-primary" /> en Chile
+            </p>
+            <p className="text-sm text-background/60">
+              Desarrollado por{" "}
+              <a
+                href="https://ancodevs.cl"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Ancodevs.cl
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
