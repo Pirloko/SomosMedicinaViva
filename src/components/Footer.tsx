@@ -84,14 +84,16 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="mt-12 pt-8 border-t border-background/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-background/60">
-            © {currentYear} Medicina Viva. Todos los derechos reservados.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center gap-4">
+        <div className="mt-12 pt-8 border-t border-background/10">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+            <p className="text-sm text-background/60">
+              © {currentYear} Medicina Viva. Todos los derechos reservados.
+            </p>
             <p className="text-sm text-background/60 flex items-center gap-1">
               Hecho con <Heart className="w-4 h-4 text-primary fill-primary" /> en Chile
             </p>
+          </div>
+          <div className="flex justify-center">
             <p className="text-sm text-background/60">
               Desarrollado por{" "}
               <a
