@@ -61,10 +61,16 @@ const AdminVentas = () => {
 
   // Filtrar ventas
   const filteredVentas = ventas?.filter(venta => {
+    // Buscar en productos de la venta
+    const productosVenta = (venta as any).venta_productos || []
+    const nombresProductos = productosVenta
+      .map((vp: any) => vp.productos?.nombre?.toLowerCase() || '')
+      .join(' ')
+    
     const matchSearch = 
       venta.cliente_nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       venta.cliente_telefono?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (venta.productos as any)?.nombre?.toLowerCase().includes(searchTerm.toLowerCase())
+      nombresProductos.includes(searchTerm.toLowerCase())
     
     const matchEstado = estadoFilter === 'all' || venta.estado === estadoFilter
 
@@ -254,21 +260,59 @@ const AdminVentas = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          {(venta.productos as any)?.imagen_url && (
-                            <img
-                              src={(venta.productos as any).imagen_url}
-                              alt={(venta.productos as any)?.nombre}
-                              className="w-10 h-10 object-cover rounded-lg"
-                            />
+                        <div className="space-y-2">
+                          {(venta as any).venta_productos && (venta as any).venta_productos.length > 0 ? (
+                            (venta as any).venta_productos.map((vp: any, idx: number) => (
+                              <div key={vp.id || idx} className="flex items-center gap-2">
+                                {vp.productos?.imagen_url && (
+                                  <img
+                                    src={vp.productos.imagen_url}
+                                    alt={vp.productos?.nombre}
+                                    className="w-8 h-8 object-cover rounded"
+                                  />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium truncate">
+                                    {vp.productos?.nombre || 'Producto eliminado'}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {vp.cantidad}x ${vp.precio_unitario?.toLocaleString('es-CL')} = ${vp.subtotal?.toLocaleString('es-CL')}
+                                  </p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            // Compatibilidad: Si no hay venta_productos, mostrar datos antiguos
+                            <div className="flex items-center gap-2">
+                              {(venta.productos as any)?.imagen_url && (
+                                <img
+                                  src={(venta.productos as any).imagen_url}
+                                  alt={(venta.productos as any)?.nombre}
+                                  className="w-10 h-10 object-cover rounded-lg"
+                                />
+                              )}
+                              <p className="text-sm font-medium">
+                                {(venta.productos as any)?.nombre || 'Producto eliminado'}
+                              </p>
+                            </div>
                           )}
-                          <p className="text-sm font-medium">
-                            {(venta.productos as any)?.nombre || 'Producto eliminado'}
-                          </p>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{venta.cantidad}x</Badge>
+                        <div className="space-y-1">
+                          {(venta as any).venta_productos && (venta as any).venta_productos.length > 0 ? (
+                            <>
+                              <Badge variant="outline">
+                                {(venta as any).venta_productos.reduce((sum: number, vp: any) => sum + vp.cantidad, 0)} unidades
+                              </Badge>
+                              <p className="text-xs text-muted-foreground">
+                                {(venta as any).venta_productos.length} producto{(venta as any).venta_productos.length > 1 ? 's' : ''}
+                              </p>
+                            </>
+                          ) : (
+                            <Badge variant="outline">{venta.cantidad}x</Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="font-semibold">
                         ${venta.total.toLocaleString('es-CL')}

@@ -13,7 +13,16 @@ export const useVentas = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('ventas')
-        .select('*, productos(nombre, imagen_url, categoria)')
+        .select(`
+          *,
+          venta_productos(
+            id,
+            cantidad,
+            precio_unitario,
+            subtotal,
+            productos(nombre, imagen_url, categoria)
+          )
+        `)
         .order('fecha_venta', { ascending: false })
 
       if (error) throw error
@@ -29,7 +38,16 @@ export const useVenta = (id: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('ventas')
-        .select('*, productos(nombre, imagen_url)')
+        .select(`
+          *,
+          venta_productos(
+            id,
+            cantidad,
+            precio_unitario,
+            subtotal,
+            productos(nombre, imagen_url, categoria)
+          )
+        `)
         .eq('id', id)
         .single()
 
@@ -117,7 +135,10 @@ export const useKPIsVentas = (dias: number = 30) => {
 
       const { data, error } = await supabase
         .from('ventas')
-        .select('*')
+        .select(`
+          *,
+          venta_productos(cantidad)
+        `)
         .gte('fecha_venta', fechaInicio.toISOString())
         .neq('estado', 'cancelado')
 
@@ -127,10 +148,17 @@ export const useKPIsVentas = (dias: number = 30) => {
       const totalVentas = data.length
       const ingresosTotal = data.reduce((sum, v) => sum + Number(v.total), 0)
       const ticketPromedio = totalVentas > 0 ? ingresosTotal / totalVentas : 0
-      const productosVendidos = data.reduce((sum, v) => sum + v.cantidad, 0)
+      
+      // Calcular productos vendidos sumando de venta_productos
+      const productosVendidos = data.reduce((sum, v) => {
+        const productos = (v as any).venta_productos || []
+        const cantidadProductos = productos.reduce((subSum: number, vp: any) => subSum + (vp.cantidad || 0), 0)
+        // Compatibilidad: si no hay venta_productos, usar cantidad antigua
+        return sum + (cantidadProductos || (v.cantidad || 0))
+      }, 0)
       
       // Clientes únicos
-      const clientesUnicos = new Set(data.map(v => v.cliente_telefono)).size
+      const clientesUnicos = new Set(data.map(v => v.cliente_telefono).filter(Boolean)).size
 
       // Ventas por estado
       const ventasPorEstado = data.reduce((acc, v) => {
@@ -156,29 +184,42 @@ export const useProductosMasVendidos = (limit: number = 5) => {
   return useQuery({
     queryKey: ['productos-mas-vendidos', limit],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Primero obtener las ventas no canceladas
+      const { data: ventas, error: errorVentas } = await supabase
         .from('ventas')
-        .select('producto_id, cantidad, productos(nombre, imagen_url)')
+        .select('id')
         .neq('estado', 'cancelado')
+
+      if (errorVentas) throw errorVentas
+
+      const ventaIds = ventas?.map(v => v.id) || []
+
+      if (ventaIds.length === 0) return []
+
+      // Luego obtener los productos de esas ventas
+      const { data, error } = await supabase
+        .from('venta_productos')
+        .select('producto_id, cantidad, productos(nombre, imagen_url)')
+        .in('venta_id', ventaIds)
 
       if (error) throw error
 
       // Agrupar por producto y sumar cantidades
       const productosMap = new Map<string, any>()
       
-      data.forEach((venta: any) => {
-        if (!venta.producto_id) return
+      data.forEach((vp: any) => {
+        if (!vp.producto_id) return
         
-        const existing = productosMap.get(venta.producto_id)
+        const existing = productosMap.get(vp.producto_id)
         if (existing) {
-          existing.cantidad_total += venta.cantidad
+          existing.cantidad_total += vp.cantidad
           existing.ventas_count += 1
         } else {
-          productosMap.set(venta.producto_id, {
-            producto_id: venta.producto_id,
-            nombre: venta.productos?.nombre || 'Desconocido',
-            imagen_url: venta.productos?.imagen_url,
-            cantidad_total: venta.cantidad,
+          productosMap.set(vp.producto_id, {
+            producto_id: vp.producto_id,
+            nombre: vp.productos?.nombre || 'Desconocido',
+            imagen_url: vp.productos?.imagen_url,
+            cantidad_total: vp.cantidad,
             ventas_count: 1,
           })
         }
@@ -227,15 +268,65 @@ export const useCreateVenta = () => {
   const { toast } = useToast()
 
   return useMutation({
-    mutationFn: async (newVenta: VentaInsert) => {
-      const { data, error } = await supabase
-        .from('ventas')
-        .insert([newVenta])
-        .select()
-        .single()
+    mutationFn: async (newVenta: VentaInsert & { productos?: Array<{ producto_id: string; cantidad: number; precio_unitario: number }> }) => {
+      // Extraer productos del objeto venta
+      const { productos, ...ventaData } = newVenta
 
-      if (error) throw error
-      return data as Venta
+      // Si hay productos, crear la venta primero y luego los productos
+      if (productos && productos.length > 0) {
+        // 1. Crear la venta (sin producto_id, cantidad, precio_unitario)
+        const { data: venta, error: errorVenta } = await supabase
+          .from('ventas')
+          .insert([{
+            ...ventaData,
+            producto_id: null, // Ya no se usa
+            cantidad: null, // Ya no se usa
+            precio_unitario: null, // Ya no se usa
+          }])
+          .select()
+          .single()
+
+        if (errorVenta) throw errorVenta
+
+        // 2. Insertar los productos de la venta
+        const productosInsert = productos.map(p => ({
+          venta_id: venta.id,
+          producto_id: p.producto_id,
+          cantidad: p.cantidad,
+          precio_unitario: p.precio_unitario,
+        }))
+
+        const { error: errorProductos } = await supabase
+          .from('venta_productos')
+          .insert(productosInsert)
+
+        if (errorProductos) {
+          // Si falla, eliminar la venta creada
+          await supabase.from('ventas').delete().eq('id', venta.id)
+          throw errorProductos
+        }
+
+        // 3. Obtener la venta completa con productos
+        const { data: ventaCompleta, error: errorCompleta } = await supabase
+          .from('ventas')
+          .select('*')
+          .eq('id', venta.id)
+          .single()
+
+        if (errorCompleta) throw errorCompleta
+
+        return ventaCompleta as Venta
+      } else {
+        // Compatibilidad: Si no hay productos, crear venta como antes
+        const { data, error } = await supabase
+          .from('ventas')
+          .insert([newVenta])
+          .select()
+          .single()
+
+        if (error) throw error
+        return data as Venta
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ventas'] })

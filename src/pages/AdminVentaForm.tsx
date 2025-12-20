@@ -16,12 +16,16 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Loader2, Save, Calculator } from 'lucide-react'
+import { ArrowLeft, Loader2, Save, Calculator, Plus, Trash2 } from 'lucide-react'
 
-type VentaFormData = {
+type ProductoVenta = {
+  id: string
   producto_id: string
   cantidad: number
   precio_unitario: number
+}
+
+type VentaFormData = {
   cliente_nombre: string
   cliente_email: string
   cliente_telefono: string
@@ -37,6 +41,8 @@ const AdminVentaForm = () => {
   const { data: productos } = useAllProducts()
   const { data: zonas } = useZonasDelivery()
 
+  const [productosVenta, setProductosVenta] = useState<ProductoVenta[]>([])
+
   const {
     register,
     handleSubmit,
@@ -45,36 +51,68 @@ const AdminVentaForm = () => {
     formState: { errors, isSubmitting },
   } = useForm<VentaFormData>({
     defaultValues: {
-      cantidad: 1,
       estado: 'pendiente',
       metodo_pago: 'efectivo',
     },
   })
 
-  const productoId = watch('producto_id')
-  const cantidad = watch('cantidad')
-  const precioUnitario = watch('precio_unitario')
+  // Calcular total automáticamente sumando todos los productos
+  const total = productosVenta.reduce((sum, p) => {
+    return sum + (p.cantidad * p.precio_unitario)
+  }, 0)
 
-  // Calcular total automáticamente
-  const total = cantidad * (precioUnitario || 0)
-
-  // Actualizar precio cuando se selecciona producto
-  useEffect(() => {
-    if (productoId && productos) {
-      const producto = productos.find(p => p.id === productoId)
-      if (producto) {
-        setValue('precio_unitario', producto.precio)
-      }
+  // Agregar nuevo producto a la lista
+  const agregarProducto = () => {
+    const nuevoProducto: ProductoVenta = {
+      id: Date.now().toString(),
+      producto_id: '',
+      cantidad: 1,
+      precio_unitario: 0,
     }
-  }, [productoId, productos, setValue])
+    setProductosVenta([...productosVenta, nuevoProducto])
+  }
+
+  // Eliminar producto de la lista
+  const eliminarProducto = (id: string) => {
+    setProductosVenta(productosVenta.filter(p => p.id !== id))
+  }
+
+  // Actualizar producto en la lista
+  const actualizarProducto = (id: string, campo: keyof ProductoVenta, valor: string | number) => {
+    setProductosVenta(productosVenta.map(p => {
+      if (p.id === id) {
+        const actualizado = { ...p, [campo]: valor }
+        
+        // Si cambió el producto, actualizar el precio automáticamente
+        if (campo === 'producto_id' && productos) {
+          const producto = productos.find(prod => prod.id === valor)
+          if (producto) {
+            actualizado.precio_unitario = producto.precio
+          }
+        }
+        
+        return actualizado
+      }
+      return p
+    }))
+  }
 
   const onSubmit = async (data: VentaFormData) => {
+    // Validar que haya al menos un producto
+    if (productosVenta.length === 0) {
+      alert('Debes agregar al menos un producto a la venta')
+      return
+    }
+
+    // Validar que todos los productos tengan producto_id
+    const productosInvalidos = productosVenta.some(p => !p.producto_id || p.cantidad <= 0 || p.precio_unitario <= 0)
+    if (productosInvalidos) {
+      alert('Todos los productos deben estar completos y tener cantidad y precio válidos')
+      return
+    }
+
     try {
       await createVenta.mutateAsync({
-        producto_id: data.producto_id,
-        cantidad: data.cantidad,
-        precio_unitario: data.precio_unitario,
-        total: total,
         cliente_nombre: data.cliente_nombre || null,
         cliente_email: data.cliente_email || null,
         cliente_telefono: data.cliente_telefono || null,
@@ -83,6 +121,12 @@ const AdminVentaForm = () => {
         metodo_pago: data.metodo_pago || null,
         notas: data.notas || null,
         fecha_venta: new Date().toISOString(),
+        total: total,
+        productos: productosVenta.map(p => ({
+          producto_id: p.producto_id,
+          cantidad: p.cantidad,
+          precio_unitario: p.precio_unitario,
+        })),
       })
 
       navigate('/admin/ventas')
@@ -114,82 +158,133 @@ const AdminVentaForm = () => {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-6">
-            {/* Información del Producto */}
+            {/* Información de los Productos */}
             <Card>
               <CardHeader>
-                <CardTitle>Información del Producto</CardTitle>
-                <CardDescription>Selecciona el producto y cantidad</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Productos de la Venta</CardTitle>
+                    <CardDescription>Agrega uno o más productos a esta venta</CardDescription>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={agregarProducto}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Agregar Producto
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Producto */}
-                <div className="space-y-2">
-                  <Label htmlFor="producto_id">
-                    Producto <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
-                    value={productoId}
-                    onValueChange={(value) => setValue('producto_id', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un producto" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {productos?.filter(p => p.activo).map(producto => (
-                        <SelectItem key={producto.id} value={producto.id}>
-                          {producto.nombre} - ${producto.precio.toLocaleString('es-CL')}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.producto_id && (
-                    <p className="text-sm text-destructive">{errors.producto_id.message}</p>
-                  )}
-                </div>
+                {productosVenta.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No hay productos agregados</p>
+                    <p className="text-sm">Haz clic en "Agregar Producto" para comenzar</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {productosVenta.map((producto, index) => {
+                      const productoSeleccionado = productos?.find(p => p.id === producto.producto_id)
+                      const subtotal = producto.cantidad * producto.precio_unitario
+                      
+                      return (
+                        <div key={producto.id} className="p-4 border rounded-lg space-y-4 bg-card">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium text-sm text-muted-foreground">
+                              Producto {index + 1}
+                            </h4>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => eliminarProducto(producto.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
 
-                {/* Cantidad y Precio */}
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="cantidad">
-                      Cantidad <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="cantidad"
-                      type="number"
-                      min="1"
-                      {...register('cantidad', {
-                        required: 'La cantidad es requerida',
-                        min: { value: 1, message: 'Mínimo 1' },
-                      })}
-                    />
+                          {/* Producto */}
+                          <div className="space-y-2">
+                            <Label>
+                              Producto <span className="text-destructive">*</span>
+                            </Label>
+                            <Select
+                              value={producto.producto_id}
+                              onValueChange={(value) => actualizarProducto(producto.id, 'producto_id', value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecciona un producto" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {productos?.filter(p => p.activo).map(prod => (
+                                  <SelectItem key={prod.id} value={prod.id}>
+                                    {prod.nombre} - ${prod.precio.toLocaleString('es-CL')}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Cantidad y Precio */}
+                          <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>
+                                Cantidad <span className="text-destructive">*</span>
+                              </Label>
+                              <Input
+                                type="number"
+                                min="1"
+                                value={producto.cantidad}
+                                onChange={(e) => actualizarProducto(producto.id, 'cantidad', parseInt(e.target.value) || 1)}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>
+                                Precio Unitario (CLP) <span className="text-destructive">*</span>
+                              </Label>
+                              <Input
+                                type="number"
+                                step="1"
+                                value={producto.precio_unitario}
+                                onChange={(e) => actualizarProducto(producto.id, 'precio_unitario', parseFloat(e.target.value) || 0)}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Subtotal del producto */}
+                          {producto.producto_id && (
+                            <div className="p-3 bg-muted/50 rounded-md">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Subtotal:</span>
+                                <span className="font-semibold">
+                                  ${subtotal.toLocaleString('es-CL')}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="precio_unitario">
-                      Precio Unitario (CLP) <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="precio_unitario"
-                      type="number"
-                      step="1"
-                      {...register('precio_unitario', {
-                        required: 'El precio es requerido',
-                        min: { value: 0, message: 'El precio debe ser mayor a 0' },
-                      })}
-                    />
-                  </div>
-                </div>
+                )}
 
                 {/* Total Calculado */}
-                <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Calculator className="w-5 h-5 text-primary" />
-                      <span className="font-medium text-foreground">Total de la Venta:</span>
+                {productosVenta.length > 0 && (
+                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/20 mt-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Calculator className="w-5 h-5 text-primary" />
+                        <span className="font-medium text-foreground">Total de la Venta:</span>
+                      </div>
+                      <span className="text-2xl font-bold text-primary">
+                        ${total.toLocaleString('es-CL')}
+                      </span>
                     </div>
-                    <span className="text-2xl font-bold text-primary">
-                      ${total.toLocaleString('es-CL')}
-                    </span>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
