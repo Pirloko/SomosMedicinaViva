@@ -255,11 +255,30 @@ Una vez configurado, Vercel hará deploys automáticos cada vez que:
 2. Verifica que todas las dependencias estén en `package.json`
 3. Asegúrate de que el comando `npm run build` funcione localmente
 
-### Problema 2: Error "404" en rutas
+### Problema 2: Error "404" o "NOT_FOUND" en rutas
+
+**Síntomas:**
+- La página principal (`/`) funciona
+- Las rutas como `/admin`, `/login` dan 404
+- Al refrescar la página en una ruta, aparece error
 
 **Solución:**
-- Verifica que el archivo `vercel.json` tenga la configuración de `rewrites`
-- Asegúrate de que todas las rutas redirijan a `/index.html`
+1. Verifica que el archivo `vercel.json` tenga la configuración de `rewrites` correcta:
+   ```json
+   {
+     "rewrites": [
+       {
+         "source": "/((?!assets/).*)",
+         "destination": "/index.html"
+       }
+     ]
+   }
+   ```
+2. El patrón `/((?!assets/).*)` excluye los assets y redirige todo lo demás a `index.html`
+3. Si el problema persiste, verifica que el build se haya completado correctamente
+4. Revisa los logs de deploy en Vercel para más detalles
+
+**Ver documentación completa:** Ver `SOLUCION_ERROR_NOT_FOUND.md`
 
 ### Problema 3: Variables de entorno no funcionan
 
