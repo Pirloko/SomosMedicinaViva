@@ -143,7 +143,7 @@ const Admin = () => {
                 <h1 className="font-display text-lg font-semibold text-foreground">
                   Panel de Administración
                 </h1>
-                <p className="text-xs text-muted-foreground">Medicina Viva Bakery</p>
+                <p className="text-xs text-muted-foreground">Somos Medicina Viva</p>
               </div>
             </div>
 
