@@ -1,0 +1,19 @@
+DESCRIPCIÓN DEL PROYECTO (VERSIÓN CORTA)
+
+Desarrollo completo de un Sistema Web Integral para la gestión de una pastelería saludable (productos sin azúcar, sin gluten y 100% veganos).
+
+INCLUYE:
+
+1. SITIO WEB PÚBLICO RESPONSIVE:
+   - Carrusel Hero con efecto 3D, catálogo de productos dinámico, puntos de venta con Google Maps, formulario de contacto, sección "Nosotros" y diseño 100% responsive.
+
+2. PANEL ADMINISTRATIVO (13 MÓDULOS):
+   - Gestión de Productos, Ingredientes, Producción, Compras, Ventas, Costos/Ganancias, KPIs, Categorías, Carrusel Hero, Nosotros, Puntos de Venta, Zonas Delivery y Contactos.
+
+3. SISTEMAS ESPECIALIZADOS:
+   - Inventario bidireccional automatizado, cálculo automático de costos (promedio ponderado), alertas de stock, análisis financiero con reportes de rentabilidad.
+
+TECNOLOGÍAS: React 18 + TypeScript + Supabase + Tailwind CSS. 8,000+ líneas de código, 61 componentes, 14 tablas de BD, 18+ guías de documentación.
+
+ESTADO: Sistema completo, funcional y en producción.
+

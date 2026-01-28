@@ -1,0 +1,63 @@
+DESCRIPCIÓN DEL PROYECTO - SOMOS MEDICINA VIVA
+
+Desarrollo completo de un Sistema Web Integral para la gestión de una pastelería saludable especializada en productos sin azúcar, sin gluten y 100% veganos.
+
+El proyecto incluye:
+
+1. SITIO WEB PÚBLICO RESPONSIVE:
+   - Carrusel Hero con efecto 3D giratorio y cambio automático
+   - Catálogo de productos dinámico con filtros por categoría
+   - Modal de detalle de productos con información completa
+   - Sección "Apto Para" con beneficios destacados
+   - Ingredientes destacados con información nutricional
+   - Puntos de venta con integración de Google Maps y horarios
+   - Zonas de delivery con información de cobertura
+   - Formulario de contacto con integración a WhatsApp
+   - Sección "Nosotros" con contenido editable
+   - Diseño 100% responsive (móvil, tablet, desktop)
+
+2. PANEL ADMINISTRATIVO COMPLETO (13 MÓDULOS):
+   - Gestión de Productos: CRUD completo, upload de imágenes, categorías, tags, control de stock
+   - Gestión de Ingredientes: CRUD, compras integradas, cálculo automático de costo promedio ponderado
+   - Sistema de Producción: Producción manual con selección de ingredientes, cálculo automático de costos
+   - Gestión de Compras: Registro de compras con cálculo automático de costo promedio ponderado
+   - Registro de Ventas: Ventas con múltiples productos, descuento automático de stock
+   - Análisis de Costos y Ganancias: Cálculo automático de rentabilidad por producto
+   - KPIs y Métricas: Dashboard con gráficos interactivos y análisis temporal
+   - Categorías: Gestión dinámica de categorías con ordenamiento
+   - Carrusel Hero: Gestión de imágenes del inicio con efectos 3D
+   - Nosotros: Editor de contenido "Quiénes Somos" con valores editables
+   - Puntos de Venta: CRUD con Google Maps y horarios configurables
+   - Zonas Delivery: Gestión de cobertura geográfica
+   - Contactos: Gestión de mensajes del formulario de contacto
+
+3. SISTEMAS ESPECIALIZADOS:
+   - Sistema de Inventario Bidireccional: Control automático de stock de productos e ingredientes
+   - Cálculo Automático de Costos: Costo promedio ponderado y análisis de rentabilidad
+   - Alertas Inteligentes: Notificaciones de stock bajo en tiempo real
+   - Movimientos de Stock: Historial completo de todos los movimientos
+   - Análisis Financiero: Reportes de ganancias, márgenes y rentabilidad
+
+TECNOLOGÍAS UTILIZADAS:
+- Frontend: React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui
+- Backend: Supabase (PostgreSQL + Authentication + Storage)
+- Herramientas: TanStack Query, React Hook Form, Zod, Recharts
+- Total: 64 paquetes npm, 8,000+ líneas de código, 61 componentes React
+
+CARACTERÍSTICAS TÉCNICAS:
+- 100% TypeScript para tipado estático
+- Base de datos con 14 tablas, 3 funciones SQL personalizadas, 3 vistas optimizadas
+- Seguridad: Row Level Security (RLS) en todas las tablas
+- Performance: Build optimizado, code splitting, caché inteligente
+- Accesibilidad: WCAG 2.1 nivel AA
+- Documentación: 18+ guías markdown completas
+
+ENTREGABLES:
+- Código fuente completo y documentado
+- Base de datos configurada con scripts SQL
+- Documentación técnica extensa (18+ guías)
+- Configuración de deploy (Netlify)
+- Capacitación para uso del sistema
+
+El sistema está completamente funcional, en producción, y permite la gestión integral de toda la operación de la pastelería desde una plataforma web moderna y profesional.
+

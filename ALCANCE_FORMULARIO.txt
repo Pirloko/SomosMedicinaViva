@@ -1,0 +1,58 @@
+ALCANCE DEL SERVICIO
+
+INCLUIDO:
+
+1. DESARROLLO COMPLETO:
+   - Sitio web público responsive (carrusel 3D, catálogo, puntos de venta, contacto, etc.)
+   - Panel administrativo con 13 módulos completos (Productos, Ingredientes, Producción, Compras, Ventas, Costos/Ganancias, KPIs, Categorías, Carrusel, Nosotros, Puntos Venta, Delivery, Contactos)
+   - Sistemas especializados: inventario bidireccional, cálculo automático de costos, alertas de stock, análisis financiero
+
+2. BASE DE DATOS:
+   - 14 tablas principales con relaciones optimizadas
+   - 3 funciones SQL personalizadas
+   - 3 vistas optimizadas
+   - Políticas de seguridad (RLS)
+   - Scripts SQL completos (10+ archivos)
+
+3. INTEGRACIONES:
+   - Supabase (PostgreSQL, Auth, Storage)
+   - Google Maps API
+   - WhatsApp (formulario contacto)
+
+4. CÓDIGO Y DOCUMENTACIÓN:
+   - Desarrollo en React 18 + TypeScript 100% (8,000+ líneas)
+   - 61 componentes React, 16 hooks, 20 páginas
+   - 18+ guías markdown de documentación técnica
+   - README completo y comentarios en código
+
+5. CONFIGURACIÓN Y DEPLOY:
+   - Configuración para Netlify
+   - Build optimizado para producción
+   - Instrucciones de deploy paso a paso
+
+6. CAPACITACIÓN Y GARANTÍA:
+   - Sesión de capacitación (2 horas)
+   - 3 meses de garantía por bugs
+   - 1 mes de soporte básico incluido
+
+NO INCLUIDO:
+- Hosting y dominio (cliente debe contratar)
+- Cuenta de Supabase (cliente debe crear)
+- API Key de Google Maps (cliente debe obtener)
+- Contenido inicial (textos, imágenes de productos)
+- Integración con pasarelas de pago
+- App móvil
+- Mantenimiento extendido después de garantía
+- Nuevas funcionalidades después de entrega
+
+RESPONSABILIDADES DEL CLIENTE:
+- Crear cuenta Supabase y proporcionar credenciales
+- Configurar Storage según guía
+- Obtener API Key de Google Maps
+- Proporcionar contenido (textos, imágenes)
+- Revisar y aprobar desarrollo en fases acordadas
+
+PLAZO: 6-8 semanas (tiempo parcial) o 4-5 semanas (tiempo completo) - 232 horas totales
+
+ENTREGABLES: Código fuente completo, scripts SQL, documentación técnica (18+ guías), configuración deploy, manual de usuario, capacitación.
+

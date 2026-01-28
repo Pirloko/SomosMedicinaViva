@@ -1,0 +1,169 @@
+ALCANCE DEL SERVICIO - SOMOS MEDICINA VIVA
+
+═══════════════════════════════════════════════════════════════
+INCLUIDO EN EL PROYECTO:
+═══════════════════════════════════════════════════════════════
+
+1. DESARROLLO DEL SITIO WEB PÚBLICO:
+   ✅ Diseño y desarrollo completo del sitio web responsive
+   ✅ Carrusel Hero con efecto 3D y animaciones
+   ✅ Catálogo de productos con filtros y búsqueda
+   ✅ Modal de detalle de productos
+   ✅ Sección "Apto Para" con beneficios
+   ✅ Ingredientes destacados
+   ✅ Puntos de venta con integración Google Maps
+   ✅ Zonas de delivery
+   ✅ Formulario de contacto con integración WhatsApp
+   ✅ Sección "Nosotros" con contenido editable
+   ✅ Diseño 100% responsive (móvil, tablet, desktop)
+   ✅ Optimización SEO básica
+   ✅ Optimización de performance
+
+2. DESARROLLO DEL PANEL ADMINISTRATIVO:
+   ✅ 13 módulos administrativos completos:
+      - Gestión de Productos (CRUD, imágenes, categorías, tags, stock)
+      - Gestión de Ingredientes (CRUD, compras, costo promedio)
+      - Sistema de Producción (producción manual, cálculo de costos)
+      - Gestión de Compras (registro, costo promedio ponderado)
+      - Registro de Ventas (múltiples productos, descuento stock)
+      - Análisis de Costos y Ganancias (rentabilidad, márgenes)
+      - KPIs y Métricas (dashboard, gráficos interactivos)
+      - Categorías (gestión dinámica)
+      - Carrusel Hero (gestión de imágenes)
+      - Nosotros (editor de contenido)
+      - Puntos de Venta (CRUD, Google Maps, horarios)
+      - Zonas Delivery (gestión de cobertura)
+      - Contactos (gestión de mensajes)
+
+3. SISTEMAS ESPECIALIZADOS:
+   ✅ Sistema de inventario bidireccional automatizado
+   ✅ Cálculo automático de costos (promedio ponderado)
+   ✅ Alertas inteligentes de stock bajo
+   ✅ Análisis financiero con reportes de rentabilidad
+   ✅ Historial completo de movimientos de stock
+   ✅ Sistema de autenticación y seguridad (RLS)
+
+4. BASE DE DATOS:
+   ✅ Diseño completo del esquema de base de datos
+   ✅ 14 tablas principales con relaciones optimizadas
+   ✅ 3 funciones SQL personalizadas
+   ✅ 3 vistas optimizadas para consultas
+   ✅ Triggers automáticos
+   ✅ Índices optimizados
+   ✅ Políticas de seguridad (Row Level Security)
+   ✅ Scripts SQL completos (10+ archivos)
+
+5. INTEGRACIONES:
+   ✅ Integración con Supabase (PostgreSQL, Auth, Storage)
+   ✅ Integración con Google Maps API
+   ✅ Integración con WhatsApp (formulario de contacto)
+   ✅ Sistema de upload de imágenes a Supabase Storage
+
+6. CÓDIGO Y ARQUITECTURA:
+   ✅ Desarrollo completo en React 18 + TypeScript 100%
+   ✅ 8,000+ líneas de código
+   ✅ 61 componentes React
+   ✅ 16 custom hooks
+   ✅ 20 páginas
+   ✅ Arquitectura escalable y mantenible
+   ✅ Código documentado y comentado
+
+7. DOCUMENTACIÓN:
+   ✅ 18+ guías markdown completas:
+      - Configuración de Supabase
+      - Configuración de Storage
+      - Creación de usuario administrador
+      - Sistema de inventario
+      - Sistema de costos
+      - Gestión de compras
+      - Sistema de alertas
+      - Producción manual
+      - Análisis financiero
+      - Sistema de carrusel
+      - Auditoría responsive
+      - Guía de producción
+      - Exportación Excel
+      - Deploy Netlify
+      - Y más...
+   ✅ README.md principal
+   ✅ Comentarios en código crítico
+   ✅ Documentación de estructura de BD
+
+8. CONFIGURACIÓN Y DEPLOY:
+   ✅ Configuración de variables de entorno
+   ✅ Configuración para Netlify (netlify.toml)
+   ✅ Build optimizado para producción
+   ✅ Instrucciones de deploy paso a paso
+   ✅ Configuración de dominio (guía)
+
+9. CAPACITACIÓN:
+   ✅ Sesión de capacitación para uso del sistema (2 horas)
+   ✅ Documentación de usuario
+   ✅ Guías paso a paso para cada módulo
+
+10. GARANTÍA Y SOPORTE:
+   ✅ 3 meses de garantía por bugs y errores de funcionamiento
+   ✅ 1 mes de soporte básico incluido (corrección de bugs)
+   ✅ Entrega de código fuente completo
+
+═══════════════════════════════════════════════════════════════
+NO INCLUIDO EN EL PROYECTO:
+═══════════════════════════════════════════════════════════════
+
+❌ Hosting y dominio (cliente debe contratar)
+❌ Cuenta de Supabase (cliente debe crear y configurar)
+❌ API Key de Google Maps (cliente debe obtener)
+❌ Contenido inicial (textos, imágenes de productos) - se incluyen datos de ejemplo
+❌ Diseño gráfico personalizado (se usa diseño estándar profesional)
+❌ Integración con pasarelas de pago
+❌ Sistema de pedidos online desde el sitio público
+❌ App móvil (iOS/Android)
+❌ Notificaciones push
+❌ Exportación a Excel (preparado pero no implementado)
+❌ Reportes PDF automatizados
+❌ Sistema de fidelización de clientes
+❌ Mantenimiento extendido después del período de garantía
+❌ Nuevas funcionalidades después de la entrega
+❌ Modificaciones de diseño después de la entrega
+❌ Migración de datos desde otros sistemas
+
+═══════════════════════════════════════════════════════════════
+RESPONSABILIDADES DEL CLIENTE:
+═══════════════════════════════════════════════════════════════
+
+1. Crear cuenta en Supabase y proporcionar credenciales
+2. Configurar Storage en Supabase según guía proporcionada
+3. Obtener API Key de Google Maps
+4. Contratar hosting y dominio (si aplica)
+5. Proporcionar contenido (textos, imágenes de productos)
+6. Proporcionar información de puntos de venta y zonas delivery
+7. Revisar y aprobar el desarrollo en las fases acordadas
+8. Proporcionar feedback oportuno durante el desarrollo
+
+═══════════════════════════════════════════════════════════════
+ENTREGABLES:
+═══════════════════════════════════════════════════════════════
+
+✅ Código fuente completo del proyecto
+✅ Scripts SQL de base de datos (10+ archivos)
+✅ Documentación técnica completa (18+ guías)
+✅ Configuración de build y deploy
+✅ Instrucciones de instalación y configuración
+✅ Manual de usuario
+✅ Sesión de capacitación (2 horas)
+
+═══════════════════════════════════════════════════════════════
+PLAZO DE ENTREGA:
+═══════════════════════════════════════════════════════════════
+
+Tiempo estimado: 6-8 semanas (trabajando tiempo parcial)
+o 4-5 semanas (trabajando tiempo completo)
+
+Total de horas: 232 horas de desarrollo
+
+═══════════════════════════════════════════════════════════════
+
+Este alcance cubre el desarrollo completo del sistema web integral
+desde cero hasta su puesta en producción, incluyendo toda la
+documentación y capacitación necesaria para su uso.
+

@@ -230,3 +230,4 @@ BEGIN
   RAISE NOTICE '📈 Vistas actualizadas';
 END $$;
 
+

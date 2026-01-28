@@ -1,0 +1,26 @@
+Sistema Web Integral desarrollado para la gestión completa de una pastelería saludable especializada en productos sin azúcar, sin gluten y 100% veganos.
+
+COMPONENTES PRINCIPALES:
+
+1. SITIO WEB PÚBLICO RESPONSIVE:
+   Carrusel Hero con efecto 3D giratorio, catálogo de productos dinámico con filtros, modal de detalle, sección "Apto Para" con beneficios, ingredientes destacados, puntos de venta con Google Maps, zonas de delivery, formulario de contacto con WhatsApp, sección "Nosotros" editable. Diseño 100% responsive para móvil, tablet y desktop.
+
+2. PANEL ADMINISTRATIVO COMPLETO (13 MÓDULOS):
+   - Gestión de Productos: CRUD completo, upload de imágenes, categorías, tags, control de stock con alertas
+   - Gestión de Ingredientes: CRUD, sistema de compras integrado, cálculo automático de costo promedio ponderado
+   - Sistema de Producción: Producción manual con selección de ingredientes, cálculo automático de costos unitarios
+   - Gestión de Compras: Registro de compras con cálculo automático de costo promedio ponderado, historial completo
+   - Registro de Ventas: Ventas con múltiples productos, descuento automático de stock, cálculo de totales
+   - Análisis de Costos y Ganancias: Cálculo automático de rentabilidad, márgenes y reportes financieros
+   - KPIs y Métricas: Dashboard con gráficos interactivos, análisis temporal, productos más vendidos
+   - Categorías, Carrusel Hero, Nosotros, Puntos de Venta, Zonas Delivery, Contactos
+
+3. SISTEMAS ESPECIALIZADOS:
+   Sistema de inventario bidireccional automatizado (productos e ingredientes), cálculo automático de costos con promedio ponderado, alertas inteligentes de stock bajo, análisis financiero con reportes de rentabilidad, historial completo de movimientos de stock.
+
+TECNOLOGÍAS: React 18 + TypeScript 100% + Supabase (PostgreSQL + Auth + Storage) + Tailwind CSS + shadcn/ui. 8,000+ líneas de código, 61 componentes React, 14 tablas de base de datos, 3 funciones SQL personalizadas, 18+ guías de documentación completa.
+
+CARACTERÍSTICAS: Seguridad con Row Level Security (RLS), performance optimizado, accesibilidad WCAG 2.1, código 100% tipado con TypeScript, arquitectura escalable y mantenible.
+
+ESTADO: Sistema completo, funcional, en producción y completamente documentado.
+
