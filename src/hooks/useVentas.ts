@@ -269,19 +269,23 @@ export const useCreateVenta = () => {
 
   return useMutation({
     mutationFn: async (newVenta: VentaInsert & { productos?: Array<{ producto_id: string; cantidad: number; precio_unitario: number }> }) => {
+      const { data: { user } } = await supabase.auth.getUser()
+      const createdBy = user?.id ?? null
+
       // Extraer productos del objeto venta
       const { productos, ...ventaData } = newVenta
 
       // Si hay productos, crear la venta primero y luego los productos
       if (productos && productos.length > 0) {
-        // 1. Crear la venta (sin producto_id, cantidad, precio_unitario)
+        // 1. Crear la venta (sin producto_id, cantidad, precio_unitario; con created_by)
         const { data: venta, error: errorVenta } = await supabase
           .from('ventas')
           .insert([{
             ...ventaData,
-            producto_id: null, // Ya no se usa
-            cantidad: null, // Ya no se usa
-            precio_unitario: null, // Ya no se usa
+            producto_id: null,
+            cantidad: null,
+            precio_unitario: null,
+            created_by: createdBy,
           }])
           .select()
           .single()
@@ -320,7 +324,7 @@ export const useCreateVenta = () => {
         // Compatibilidad: Si no hay productos, crear venta como antes
         const { data, error } = await supabase
           .from('ventas')
-          .insert([newVenta])
+          .insert([{ ...newVenta, created_by: createdBy }])
           .select()
           .single()
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAllProducts, useDeleteProduct, useDeleteProductPermanently, useToggleProductoActivo } from '@/hooks/useProducts'
+import { useAuth } from '@/contexts/AuthContext'
 import { useProductosCriticos } from '@/hooks/useStock'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,6 +35,9 @@ import { ArrowLeft, Plus, Edit, Trash2, Search, Loader2, Eye, EyeOff, MoreVertic
 
 const AdminProductos = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { role } = useAuth()
+  const isVendedor = location.pathname.startsWith('/vendedor') || role === 'vendedor'
   const { data: products, isLoading } = useAllProducts()
   const { data: productosCriticos } = useProductosCriticos()
   const deleteProduct = useDeleteProduct()
@@ -71,23 +75,25 @@ const AdminProductos = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
+              <Button variant="ghost" size="sm" onClick={() => navigate(isVendedor ? '/vendedor' : '/admin')}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver
               </Button>
               <div>
                 <h1 className="font-display text-xl font-semibold text-foreground">
-                  Gestión de Productos
+                  {isVendedor ? 'Productos' : 'Gestión de Productos'}
                 </h1>
                 <p className="text-xs text-muted-foreground">
                   {products?.length || 0} productos totales
                 </p>
               </div>
             </div>
-            <Button onClick={() => navigate('/admin/productos/nuevo')}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nuevo Producto
-            </Button>
+            {!isVendedor && (
+              <Button onClick={() => navigate('/admin/productos/nuevo')}>
+                <Plus className="w-4 h-4 mr-2" />
+                Nuevo Producto
+              </Button>
+            )}
           </div>
         </div>
       </header>
@@ -127,13 +133,13 @@ const AdminProductos = () => {
                   <TableHead>Precio</TableHead>
                   <TableHead>Stock</TableHead>
                   <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
+                  {!isVendedor && <TableHead className="text-right">Acciones</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                    <TableCell colSpan={isVendedor ? 6 : 7} className="text-center py-10 text-muted-foreground">
                       No se encontraron productos
                     </TableCell>
                   </TableRow>
@@ -195,46 +201,48 @@ const AdminProductos = () => {
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate(`/admin/productos/${product.id}`)}
-                            title="Editar producto"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreVertical className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              {product.activo ? (
-                                <DropdownMenuItem onClick={() => toggleProductoActivo.mutate({ id: product.id, activo: false })}>
-                                  <EyeOff className="w-4 h-4 mr-2" />
-                                  Desactivar
+                      {!isVendedor && (
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => navigate(`/admin/productos/${product.id}`)}
+                              title="Editar producto"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {product.activo ? (
+                                  <DropdownMenuItem onClick={() => toggleProductoActivo.mutate({ id: product.id, activo: false })}>
+                                    <EyeOff className="w-4 h-4 mr-2" />
+                                    Desactivar
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => toggleProductoActivo.mutate({ id: product.id, activo: true })}>
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    Activar
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  onClick={() => setDeletePermanentlyId(product.id)}
+                                  className="text-destructive focus:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Eliminar Permanentemente
                                 </DropdownMenuItem>
-                              ) : (
-                                <DropdownMenuItem onClick={() => toggleProductoActivo.mutate({ id: product.id, activo: true })}>
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  Activar
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem 
-                                onClick={() => setDeletePermanentlyId(product.id)}
-                                className="text-destructive focus:text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Eliminar Permanentemente
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 )}

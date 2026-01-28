@@ -430,6 +430,7 @@ export interface Database {
           zona_delivery: string | null
           estado: string
           fecha_venta: string
+          created_by: string | null
           created_at: string
         }
         Insert: {
@@ -443,6 +444,7 @@ export interface Database {
           zona_delivery?: string | null
           estado?: string
           fecha_venta?: string
+          created_by?: string | null
           created_at?: string
         }
         Update: {
@@ -456,6 +458,7 @@ export interface Database {
           zona_delivery?: string | null
           estado?: string
           fecha_venta?: string
+          created_by?: string | null
           created_at?: string
         }
       }

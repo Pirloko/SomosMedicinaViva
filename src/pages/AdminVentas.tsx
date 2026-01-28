@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useVentas, useUpdateVenta, useDeleteVenta } from '@/hooks/useVentas'
+import { type ReactNode, useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useVentas, useUpdateVenta } from '@/hooks/useVentas'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -26,16 +27,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { 
   ArrowLeft, 
   Plus, 
@@ -45,19 +36,39 @@ import {
   DollarSign,
   TrendingUp,
   ShoppingBag,
-  Trash2,
-  AlertTriangle
+  CheckCircle,
+  Package,
+  Truck,
+  CircleDollarSign,
+  XCircle
 } from 'lucide-react'
+
+// Opciones por estado: desde "preparando" se puede ir a Enviado O Entregado (retiro en tienda)
+type OpcionEstado = { estado: string; label: string; icon: ReactNode }
+const OPCIONES_POR_ESTADO: Record<string, OpcionEstado[]> = {
+  pendiente: [{ estado: 'confirmado', label: 'Confirmar', icon: <CheckCircle className="w-4 h-4" /> }, { estado: 'preparando', label: 'Preparando', icon: <Package className="w-4 h-4" /> }],
+  confirmado: [{ estado: 'preparando', label: 'Preparando', icon: <Package className="w-4 h-4" /> }],
+  preparando: [
+    { estado: 'enviado', label: 'Enviado', icon: <Truck className="w-4 h-4" /> },
+    { estado: 'entregado', label: 'Entregado', icon: <CircleDollarSign className="w-4 h-4" /> },
+  ],
+  enviado: [{ estado: 'entregado', label: 'Entregado', icon: <CircleDollarSign className="w-4 h-4" /> }],
+  entregado: [],
+  cancelado: [],
+}
 
 const AdminVentas = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { role } = useAuth()
   const { data: ventas, isLoading } = useVentas()
   const updateVenta = useUpdateVenta()
-  const deleteVenta = useDeleteVenta()
+
+  const isVendedor = location.pathname.startsWith('/vendedor') || role === 'vendedor'
+  const basePath = isVendedor ? '/vendedor' : '/admin'
   
   const [searchTerm, setSearchTerm] = useState('')
   const [estadoFilter, setEstadoFilter] = useState('all')
-  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   // Filtrar ventas
   const filteredVentas = ventas?.filter(venta => {
@@ -103,13 +114,6 @@ const AdminVentas = () => {
     })
   }
 
-  const handleDelete = async () => {
-    if (deleteId) {
-      await deleteVenta.mutateAsync(deleteId)
-      setDeleteId(null)
-    }
-  }
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -117,20 +121,20 @@ const AdminVentas = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
+              <Button variant="ghost" size="sm" onClick={() => navigate(basePath)}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver
               </Button>
               <div>
                 <h1 className="font-display text-xl font-semibold text-foreground">
-                  Gestión de Ventas
+                  {isVendedor ? 'Mis Ventas' : 'Gestión de Ventas'}
                 </h1>
                 <p className="text-xs text-muted-foreground">
                   {totalVentas} ventas · {ventasPendientes} pendientes
                 </p>
               </div>
             </div>
-            <Button onClick={() => navigate('/admin/ventas/nueva')}>
+            <Button onClick={() => navigate(`${basePath}/ventas/nueva`)}>
               <Plus className="w-4 h-4 mr-2" />
               Registrar Venta
             </Button>
@@ -326,35 +330,32 @@ const AdminVentas = () => {
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" aria-label="Acciones">
                               <MoreVertical className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleCambiarEstado(venta.id, 'confirmado')}>
-                              Marcar como Confirmado
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleCambiarEstado(venta.id, 'preparando')}>
-                              Marcar como Preparando
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleCambiarEstado(venta.id, 'enviado')}>
-                              Marcar como Enviado
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleCambiarEstado(venta.id, 'entregado')}>
-                              Marcar como Entregado
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleCambiarEstado(venta.id, 'cancelado')}>
-                              Marcar como Cancelado
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => setDeleteId(venta.id)}
-                              className="text-destructive focus:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Eliminar Venta
-                            </DropdownMenuItem>
+                          <DropdownMenuContent align="end" className="min-w-[180px]">
+                            {/* Desde preparando: Enviado y Entregado (retiro en tienda). Desde enviado: Entregado */}
+                            {(OPCIONES_POR_ESTADO[venta.estado] ?? []).map((opcion) => (
+                              <DropdownMenuItem
+                                key={opcion.estado}
+                                onClick={() => handleCambiarEstado(venta.id, opcion.estado)}
+                                className="font-medium"
+                              >
+                                {opcion.icon}
+                                <span className="ml-2">{opcion.label}</span>
+                              </DropdownMenuItem>
+                            ))}
+                            {/* Cancelar pedido: solo si aún no está entregado ni cancelado */}
+                            {venta.estado !== 'cancelado' && venta.estado !== 'entregado' && (
+                              <DropdownMenuItem
+                                onClick={() => handleCambiarEstado(venta.id, 'cancelado')}
+                                className="text-amber-600 focus:text-amber-600"
+                              >
+                                <XCircle className="w-4 h-4" />
+                                <span className="ml-2">Cancelar pedido</span>
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -366,31 +367,6 @@ const AdminVentas = () => {
           </div>
         )}
       </main>
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-              <AlertTriangle className="w-5 h-5" />
-              ¿Eliminar venta?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p className="font-semibold">⚠️ Esta acción NO se puede deshacer.</p>
-              <p>La venta será eliminada completamente de la base de datos y no se incluirá en las métricas.</p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDelete} 
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Sí, Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

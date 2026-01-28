@@ -138,15 +138,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Actualizar trigger para venta_productos
+-- Eliminar trigger antiguo en ventas (usa NEW.venta_id que no existe en filas de ventas)
+DROP TRIGGER IF EXISTS trigger_descontar_stock_venta ON ventas;
+
+-- Trigger de descuento de stock solo en venta_productos
 DROP TRIGGER IF EXISTS trigger_descontar_stock_venta_producto ON venta_productos;
 CREATE TRIGGER trigger_descontar_stock_venta_producto
   AFTER INSERT ON venta_productos
   FOR EACH ROW
   EXECUTE FUNCTION descontar_stock_venta();
-
--- Mantener trigger antiguo para compatibilidad (se puede eliminar después)
--- DROP TRIGGER IF EXISTS trigger_descontar_stock_venta ON ventas;
 
 -- ============================================
 -- 7. VISTA: Ventas con productos

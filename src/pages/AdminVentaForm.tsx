@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useCreateVenta } from '@/hooks/useVentas'
+import { useAuth } from '@/contexts/AuthContext'
 import { useAllProducts } from '@/hooks/useProducts'
 import { useZonasDelivery } from '@/hooks/useZonasDelivery'
 import { Button } from '@/components/ui/button'
@@ -37,9 +38,13 @@ type VentaFormData = {
 
 const AdminVentaForm = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { role } = useAuth()
   const createVenta = useCreateVenta()
   const { data: productos } = useAllProducts()
   const { data: zonas } = useZonasDelivery()
+
+  const isVendedor = location.pathname.startsWith('/vendedor') || role === 'vendedor'
 
   const [productosVenta, setProductosVenta] = useState<ProductoVenta[]>([])
 
@@ -51,10 +56,15 @@ const AdminVentaForm = () => {
     formState: { errors, isSubmitting },
   } = useForm<VentaFormData>({
     defaultValues: {
-      estado: 'pendiente',
+      estado: 'preparando',
       metodo_pago: 'efectivo',
     },
   })
+
+  // Toda venta nueva queda en "preparando"
+  useEffect(() => {
+    setValue('estado', 'preparando')
+  }, [setValue])
 
   // Calcular total automáticamente sumando todos los productos
   const total = productosVenta.reduce((sum, p) => {
@@ -117,7 +127,7 @@ const AdminVentaForm = () => {
         cliente_email: data.cliente_email || null,
         cliente_telefono: data.cliente_telefono || null,
         zona_delivery: data.zona_delivery || null,
-        estado: data.estado,
+        estado: 'preparando',
         metodo_pago: data.metodo_pago || null,
         notas: data.notas || null,
         fecha_venta: new Date().toISOString(),
@@ -129,7 +139,7 @@ const AdminVentaForm = () => {
         })),
       })
 
-      navigate('/admin/ventas')
+      navigate(isVendedor ? '/vendedor/ventas' : '/admin/ventas')
     } catch (error) {
       console.error('Error al registrar venta:', error)
     }
@@ -142,7 +152,7 @@ const AdminVentaForm = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin/ventas')}>
+              <Button variant="ghost" size="sm" onClick={() => navigate(isVendedor ? '/vendedor/ventas' : '/admin/ventas')}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver
               </Button>
@@ -355,22 +365,7 @@ const AdminVentaForm = () => {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="estado">Estado Inicial</Label>
-                    <Select
-                      value={watch('estado')}
-                      onValueChange={(value) => setValue('estado', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pendiente">Pendiente</SelectItem>
-                        <SelectItem value="confirmado">Confirmado</SelectItem>
-                        <SelectItem value="preparando">Preparando</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {/* Estado fijo: toda venta nueva queda en "preparando" */}
                 </div>
 
                 {/* Método de Pago */}
@@ -410,7 +405,7 @@ const AdminVentaForm = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/admin/ventas')}
+                onClick={() => navigate(isVendedor ? '/vendedor/ventas' : '/admin/ventas')}
               >
                 Cancelar
               </Button>
