@@ -96,24 +96,21 @@ const AdminCategorias = () => {
   }
 
   const handleNombreChange = (nombre: string) => {
-    setFormData({ 
-      ...formData, 
-      nombre,
-      slug: editingCategoria ? formData.slug : generateSlug(nombre)
-    })
+    setFormData({ ...formData, nombre })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+    const slug = generateSlug(formData.nombre)
+    const payload = { ...formData, slug }
     try {
       if (editingCategoria) {
         await updateCategoria.mutateAsync({
           id: editingCategoria.id,
-          updates: formData,
+          updates: payload,
         })
       } else {
-        await createCategoria.mutateAsync(formData)
+        await createCategoria.mutateAsync(payload)
       }
       setIsDialogOpen(false)
     } catch (error) {
@@ -300,23 +297,6 @@ const AdminCategorias = () => {
                   required
                   placeholder="Ej: Tortas Especiales"
                 />
-              </div>
-
-              {/* Slug */}
-              <div className="space-y-2">
-                <Label htmlFor="slug">
-                  Slug (Identificador) <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="slug"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  required
-                  placeholder="tortas-especiales"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Se genera automáticamente. Solo letras minúsculas, números y guiones.
-                </p>
               </div>
 
               {/* Descripción */}

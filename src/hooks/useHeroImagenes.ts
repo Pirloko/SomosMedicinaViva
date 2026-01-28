@@ -62,7 +62,7 @@ export const useCreateHeroImagen = () => {
       queryClient.invalidateQueries({ queryKey: ['hero-imagenes-admin'] })
       toast({
         title: '✅ Imagen agregada',
-        description: 'La imagen se ha agregado al carrusel',
+        description: 'La imagen se ha agregado a la portada',
       })
     },
     onError: (error: any) => {
@@ -133,8 +133,8 @@ export const useToggleHeroImagenActivo = () => {
       toast({
         title: data.activo ? '✅ Imagen activada' : '✅ Imagen desactivada',
         description: data.activo 
-          ? 'La imagen se mostrará en el carrusel'
-          : 'La imagen se ha ocultado del carrusel',
+          ? 'La imagen se mostrará en la portada de la web'
+          : 'La imagen se ha ocultado de la portada',
       })
     },
     onError: (error: any) => {
@@ -166,7 +166,7 @@ export const useDeleteHeroImagen = () => {
       queryClient.invalidateQueries({ queryKey: ['hero-imagenes-admin'] })
       toast({
         title: '✅ Imagen eliminada',
-        description: 'La imagen se ha eliminado del carrusel',
+        description: 'La imagen se ha eliminado de la portada',
       })
     },
     onError: (error: any) => {

@@ -105,7 +105,6 @@ const AdminProductoForm = () => {
       setValue('categoria', product.categoria)
       setValue('imagen_url', product.imagen_url || '')
       setValue('tags', product.tags?.join(', ') || '')
-      setValue('stock_disponible', product.stock_disponible || 0)
       setValue('stock_minimo', product.stock_minimo || 5)
       setValue('activo', product.activo)
     }
@@ -126,7 +125,7 @@ const AdminProductoForm = () => {
         categoria: data.categoria,
         imagen_url: data.imagen_url || null,
         tags: tagsArray,
-        stock_disponible: Number(data.stock_disponible) || 0,
+        stock_disponible: 0, // Se gestiona desde "Manejo de Stock"
         stock_minimo: Number(data.stock_minimo) || 5,
         activo: data.activo,
       }
@@ -294,47 +293,24 @@ const AdminProductoForm = () => {
                   </div>
                 </div>
 
-                {/* Stock Disponible y Stock Mínimo */}
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {/* Stock Disponible */}
-                  <div className="space-y-2">
-                    <Label htmlFor="stock_disponible">
-                      Stock Disponible
-                    </Label>
-                    <Input
-                      id="stock_disponible"
-                      type="number"
-                      step="1"
-                      {...register('stock_disponible', {
-                        min: { value: 0, message: 'El stock no puede ser negativo' },
-                        valueAsNumber: true,
-                      })}
-                      placeholder="0"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Unidades disponibles para venta
-                    </p>
-                  </div>
-
-                  {/* Stock Mínimo */}
-                  <div className="space-y-2">
-                    <Label htmlFor="stock_minimo">
-                      Stock Mínimo (Alerta)
-                    </Label>
-                    <Input
-                      id="stock_minimo"
-                      type="number"
-                      step="1"
-                      {...register('stock_minimo', {
-                        min: { value: 0, message: 'El stock mínimo no puede ser negativo' },
-                        valueAsNumber: true,
-                      })}
-                      placeholder="5"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Te alertará cuando el stock esté por debajo
-                    </p>
-                  </div>
+                {/* Stock Mínimo */}
+                <div className="space-y-2">
+                  <Label htmlFor="stock_minimo">
+                    Stock Mínimo (Alerta)
+                  </Label>
+                  <Input
+                    id="stock_minimo"
+                    type="number"
+                    step="1"
+                    {...register('stock_minimo', {
+                      min: { value: 0, message: 'El stock mínimo no puede ser negativo' },
+                      valueAsNumber: true,
+                    })}
+                    placeholder="5"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Te alertará cuando el stock esté por debajo. El stock disponible se gestiona desde "Manejo de Stock"
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -398,7 +374,9 @@ const AdminProductoForm = () => {
                         <TableBody>
                           {ingredientesProducto.map((pi) => {
                             const ingrediente = pi.ingredientes as any
-                            const puedeProducir = Math.floor(ingrediente?.stock_actual / pi.cantidad_necesaria)
+                            const puedeProducir = pi.cantidad_necesaria > 0 
+                              ? Math.floor((ingrediente?.stock_actual || 0) / pi.cantidad_necesaria)
+                              : 0
                             const costoIngrediente = pi.cantidad_necesaria * (ingrediente?.costo_unitario || 0)
 
                             return (
@@ -571,7 +549,9 @@ const AdminProductoForm = () => {
             {/* Preview de Producción */}
             {selectedIngredienteId && cantidadNecesaria > 0 && (() => {
               const ingrediente = ingredientes?.find(i => i.id === selectedIngredienteId)
-              const puedeProducir = Math.floor((ingrediente?.stock_actual || 0) / cantidadNecesaria)
+              const puedeProducir = cantidadNecesaria > 0
+                ? Math.floor((ingrediente?.stock_actual || 0) / cantidadNecesaria)
+                : 0
               const costo = cantidadNecesaria * (ingrediente?.costo_unitario || 0)
 
               return (

@@ -58,7 +58,7 @@ const AdminKPIs = () => {
       change: '+8.2%',
     },
     {
-      title: 'Ticket Promedio',
+      title: 'Venta Promedio',
       value: `$${Math.round(kpis?.ticketPromedio || 0).toLocaleString('es-CL')}`,
       icon: TrendingUp,
       color: 'text-purple-600',
@@ -282,7 +282,9 @@ const AdminKPIs = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Productos Totales</span>
-                    <span className="font-semibold">{productos?.length || 0}</span>
+                    <span className="font-semibold">
+                      {productos?.reduce((total, producto) => total + (producto.stock_disponible || 0), 0) || 0}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Productos Vendidos</span>

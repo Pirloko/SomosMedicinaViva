@@ -133,12 +133,22 @@ const AdminIngredientes = () => {
     
     try {
       if (editingIngrediente) {
+        // Al editar, mantener stock_actual y costo_unitario existentes
         await updateIngrediente.mutateAsync({
           id: editingIngrediente.id,
-          updates: formData,
+          updates: {
+            ...formData,
+            stock_actual: editingIngrediente.stock_actual, // Mantener valor existente
+            costo_unitario: editingIngrediente.costo_unitario || 0, // Mantener valor existente
+          },
         })
       } else {
-        await createIngrediente.mutateAsync(formData)
+        // Al crear, establecer stock_actual y costo_unitario en 0
+        await createIngrediente.mutateAsync({
+          ...formData,
+          stock_actual: 0, // Se gestiona desde "Manejo de Stock"
+          costo_unitario: 0, // Se gestiona desde "Manejo de Stock"
+        })
       }
       setIsDialogOpen(false)
     } catch (error) {
@@ -228,15 +238,6 @@ const AdminIngredientes = () => {
             </div>
           </div>
 
-          {/* Banner Actualizar Stock */}
-          <div className="border-t px-4 sm:px-6 lg:px-8 py-3 bg-gradient-to-r from-green-50 to-emerald-50">
-            <div className="flex items-center justify-center gap-2 max-w-7xl mx-auto">
-              <ShoppingCart className="w-4 h-4 text-green-600" />
-              <p className="text-sm text-green-800 font-medium">
-                💡 Usa el botón 🛒 en cada fila para registrar compras y actualizar stock
-              </p>
-            </div>
-          </div>
         </div>
       </header>
 
@@ -353,15 +354,6 @@ const AdminIngredientes = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleOpenCompraDialog(ingrediente)}
-                              title="Actualizar stock (Registrar compra)"
-                              className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                            >
-                              <ShoppingCart className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
                               onClick={() => handleOpenDialog(ingrediente)}
                               title="Editar ingrediente"
                             >
@@ -471,8 +463,8 @@ const AdminIngredientes = () => {
                 </div>
               </div>
 
-              {/* Unidad y Stock */}
-              <div className="grid sm:grid-cols-3 gap-4">
+              {/* Unidad y Stock Mínimo */}
+              <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="unidad">Unidad de Medida *</Label>
                   <Select
@@ -491,16 +483,6 @@ const AdminIngredientes = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="stock_actual">Stock Actual</Label>
-                  <Input
-                    id="stock_actual"
-                    type="number"
-                    step="0.01"
-                    value={formData.stock_actual}
-                    onChange={(e) => setFormData({ ...formData, stock_actual: parseFloat(e.target.value) || 0 })}
-                  />
-                </div>
-                <div className="space-y-2">
                   <Label htmlFor="stock_minimo">Stock Mínimo</Label>
                   <Input
                     id="stock_minimo"
@@ -509,20 +491,10 @@ const AdminIngredientes = () => {
                     value={formData.stock_minimo}
                     onChange={(e) => setFormData({ ...formData, stock_minimo: parseFloat(e.target.value) || 0 })}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    El stock actual y costo unitario se gestionan desde "Manejo de Stock"
+                  </p>
                 </div>
-              </div>
-
-              {/* Costo */}
-              <div className="space-y-2">
-                <Label htmlFor="costo">Costo Unitario (CLP)</Label>
-                <Input
-                  id="costo"
-                  type="number"
-                  step="1"
-                  value={formData.costo_unitario}
-                  onChange={(e) => setFormData({ ...formData, costo_unitario: parseFloat(e.target.value) || 0 })}
-                  placeholder="12000"
-                />
               </div>
 
               {/* Upload de Imagen */}
@@ -738,7 +710,13 @@ const AdminIngredientes = () => {
                       <p>• Valor compra nueva: ${Math.round(compraData.cantidad * compraData.costo_unitario).toLocaleString('es-CL')}</p>
                       <p>• Valor total: ${Math.round((comprandoIngrediente.stock_actual * (comprandoIngrediente.costo_unitario || 0)) + (compraData.cantidad * compraData.costo_unitario)).toLocaleString('es-CL')}</p>
                       <p className="font-semibold">
-                        • Nuevo costo promedio: ${Math.round(((comprandoIngrediente.stock_actual * (comprandoIngrediente.costo_unitario || 0)) + (compraData.cantidad * compraData.costo_unitario)) / (comprandoIngrediente.stock_actual + compraData.cantidad)).toLocaleString('es-CL')}/{comprandoIngrediente.unidad_medida}
+                        • Nuevo costo promedio: ${(() => {
+                          const stockTotal = comprandoIngrediente.stock_actual + compraData.cantidad
+                          const valorTotal = (comprandoIngrediente.stock_actual * (comprandoIngrediente.costo_unitario || 0)) + (compraData.cantidad * compraData.costo_unitario)
+                          return stockTotal > 0 
+                            ? Math.round(valorTotal / stockTotal).toLocaleString('es-CL')
+                            : '0'
+                        })()}/{comprandoIngrediente.unidad_medida}
                       </p>
                     </div>
                   </div>

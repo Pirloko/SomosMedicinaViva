@@ -40,12 +40,67 @@ export const useContactosNoLeidos = () => {
   })
 }
 
+// Hook optimizado para obtener solo el conteo de contactos pendientes
+export const useContactosPendientesCount = () => {
+  return useQuery({
+    queryKey: ['contactos-pendientes-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('contactos')
+        .select('*', { count: 'exact', head: true })
+        .eq('respondido', false)
+
+      if (error) throw error
+      return count || 0
+    },
+    staleTime: 1000 * 30, // 30 segundos - se actualiza frecuentemente
+  })
+}
+
+// Hook optimizado para obtener solo el conteo de contactos no leídos
+export const useContactosNoLeidosCount = () => {
+  return useQuery({
+    queryKey: ['contactos-no-leidos-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('contactos')
+        .select('*', { count: 'exact', head: true })
+        .eq('leido', false)
+
+      if (error) throw error
+      return count || 0
+    },
+    staleTime: 1000 * 30, // 30 segundos
+  })
+}
+
+// Hook optimizado para obtener solo los primeros 3 contactos pendientes (para preview)
+export const useContactosPendientesPreview = () => {
+  return useQuery({
+    queryKey: ['contactos-pendientes-preview'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('contactos')
+        .select('id, nombre, mensaje, leido, respondido, created_at')
+        .eq('respondido', false)
+        .order('created_at', { ascending: false })
+        .limit(3)
+
+      if (error) throw error
+      // Retornar con tipo completo incluyendo respondido
+      return (data || []) as Contacto[]
+    },
+    staleTime: 1000 * 30, // 30 segundos
+  })
+}
+
 // Hook para crear contacto (público)
 export const useCreateContacto = () => {
   const { toast } = useToast()
 
   return useMutation({
     mutationFn: async (newContacto: ContactoInsert) => {
+      // @ts-ignore - Tipo de Supabase necesita actualización
       const { data, error } = await supabase
         .from('contactos')
         .insert([newContacto])
@@ -78,6 +133,7 @@ export const useMarcarContactoLeido = () => {
 
   return useMutation({
     mutationFn: async ({ id, leido }: { id: string; leido: boolean }) => {
+      // @ts-ignore - Tipo de Supabase necesita actualización
       const { data, error } = await supabase
         .from('contactos')
         .update({ leido })
@@ -109,6 +165,7 @@ export const useUpdateContacto = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: ContactoUpdate }) => {
+      // @ts-ignore - Tipo de Supabase necesita actualización
       const { data, error } = await supabase
         .from('contactos')
         .update(updates)

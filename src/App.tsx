@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -25,6 +25,9 @@ import AdminVentaForm from "./pages/AdminVentaForm";
 import AdminContactos from "./pages/AdminContactos";
 import AdminKPIs from "./pages/AdminKPIs";
 import AdminGanancias from "./pages/AdminGanancias";
+import AdminStock from "./pages/AdminStock";
+import AdminUsuarios from "./pages/AdminUsuarios";
+import VendedorDashboard from "./pages/VendedorDashboard";
 import NotFound from "./pages/NotFound";
 import { checkSupabaseConnection } from "@/lib/supabase";
 
@@ -107,19 +110,27 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               
-              {/* Rutas Protegidas (Admin) */}
+              {/* Rutas Protegidas (Admin) - Requieren rol admin */}
               <Route 
                 path="/admin" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <Admin />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/usuarios" 
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminUsuarios />
                   </ProtectedRoute>
                 } 
               />
               <Route 
                 path="/admin/productos" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminProductos />
                   </ProtectedRoute>
                 } 
@@ -127,7 +138,7 @@ const App = () => {
               <Route 
                 path="/admin/productos/nuevo" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminProductoForm />
                   </ProtectedRoute>
                 } 
@@ -135,7 +146,7 @@ const App = () => {
               <Route 
                 path="/admin/productos/:id" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminProductoForm />
                   </ProtectedRoute>
                 } 
@@ -143,7 +154,7 @@ const App = () => {
               <Route 
                 path="/admin/productos/:id/costos" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminProductoCostos />
                   </ProtectedRoute>
                 } 
@@ -151,7 +162,7 @@ const App = () => {
               <Route 
                 path="/admin/ingredientes" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminIngredientes />
                   </ProtectedRoute>
                 } 
@@ -159,7 +170,7 @@ const App = () => {
               <Route 
                 path="/admin/beneficios" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminBeneficios />
                   </ProtectedRoute>
                 } 
@@ -167,7 +178,7 @@ const App = () => {
               <Route 
                 path="/admin/puntos-venta" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminPuntosVenta />
                   </ProtectedRoute>
                 } 
@@ -175,7 +186,7 @@ const App = () => {
               <Route 
                 path="/admin/delivery" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminDelivery />
                   </ProtectedRoute>
                 } 
@@ -183,7 +194,7 @@ const App = () => {
               <Route 
                 path="/admin/categorias" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminCategorias />
                   </ProtectedRoute>
                 } 
@@ -191,7 +202,7 @@ const App = () => {
               <Route 
                 path="/admin/hero-carousel" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminHeroCarousel />
                   </ProtectedRoute>
                 } 
@@ -199,23 +210,32 @@ const App = () => {
               <Route 
                 path="/admin/nosotros" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminAbout />
                   </ProtectedRoute>
                 } 
               />
+              {/* Redirección desde /admin/produccion a /admin/stock */}
               <Route 
                 path="/admin/produccion" 
                 element={
-                  <ProtectedRoute>
-                    <AdminProduccion />
+                  <ProtectedRoute requiredRole="admin">
+                    <Navigate to="/admin/stock?tab=produccion" replace />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/stock" 
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminStock />
                   </ProtectedRoute>
                 } 
               />
               <Route 
                 path="/admin/ventas" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminVentas />
                   </ProtectedRoute>
                 } 
@@ -223,7 +243,7 @@ const App = () => {
               <Route 
                 path="/admin/ventas/nueva" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminVentaForm />
                   </ProtectedRoute>
                 } 
@@ -231,7 +251,7 @@ const App = () => {
               <Route 
                 path="/admin/contactos" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminContactos />
                   </ProtectedRoute>
                 } 
@@ -239,7 +259,7 @@ const App = () => {
               <Route 
                 path="/admin/kpis" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminKPIs />
                   </ProtectedRoute>
                 } 
@@ -247,8 +267,42 @@ const App = () => {
               <Route 
                 path="/admin/ganancias" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <AdminGanancias />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Rutas Protegidas (Vendedor) */}
+              <Route 
+                path="/vendedor" 
+                element={
+                  <ProtectedRoute requiredRole="vendedor">
+                    <VendedorDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/vendedor/ventas/nueva" 
+                element={
+                  <ProtectedRoute requiredRole="vendedor">
+                    <AdminVentaForm />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/vendedor/ventas" 
+                element={
+                  <ProtectedRoute requiredRole="vendedor">
+                    <AdminVentas />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/vendedor/productos" 
+                element={
+                  <ProtectedRoute requiredRole="vendedor">
+                    <AdminProductos />
                   </ProtectedRoute>
                 } 
               />

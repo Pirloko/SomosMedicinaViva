@@ -210,6 +210,8 @@ export interface Database {
           telefono: string | null
           mensaje: string
           leido: boolean
+          respondido: boolean
+          notas: string | null
           created_at: string
         }
         Insert: {
@@ -219,6 +221,8 @@ export interface Database {
           telefono?: string | null
           mensaje: string
           leido?: boolean
+          respondido?: boolean
+          notas?: string | null
           created_at?: string
         }
         Update: {
@@ -228,6 +232,8 @@ export interface Database {
           telefono?: string | null
           mensaje?: string
           leido?: boolean
+          respondido?: boolean
+          notas?: string | null
           created_at?: string
         }
       }

@@ -10,24 +10,32 @@ type StockMovimiento = Database['public']['Tables']['stock_movimientos']['Row']
 // PRODUCTOS CRÍTICOS (Stock Bajo)
 // ============================================
 
+// Hook optimizado: Usa función SQL que filtra directamente en la BD
 export const useProductosCriticos = () => {
   return useQuery({
     queryKey: ['productos-criticos'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('productos')
-        .select('*')
-        .eq('activo', true)
-        .order('stock_disponible')
+      // Intentar usar la función SQL optimizada
+      const { data, error } = await supabase.rpc('obtener_productos_criticos_completo')
 
-      if (error) throw error
+      if (error) {
+        // Fallback: si la función no existe, usar query tradicional
+        console.warn('Función RPC no disponible, usando query tradicional:', error.message)
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('productos')
+          .select('*')
+          .eq('activo', true)
+          .order('stock_disponible')
+
+        if (fallbackError) throw fallbackError
+        
+        // Filtrar en cliente como fallback
+        return (fallbackData as Producto[])
+          .filter(prod => prod.stock_disponible <= prod.stock_minimo)
+          .sort((a, b) => a.stock_disponible - b.stock_disponible)
+      }
       
-      // Filtrar productos donde stock_disponible <= stock_minimo
-      const productosCriticos = (data as Producto[]).filter(
-        prod => prod.stock_disponible <= prod.stock_minimo
-      )
-      
-      return productosCriticos
+      return data as Producto[]
     },
     staleTime: 1000 * 60, // 1 minuto
   })

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -11,8 +11,19 @@ const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { signIn } = useAuth()
+  const { signIn, role, user } = useAuth()
   const navigate = useNavigate()
+
+  // Redirigir si ya está autenticado
+  useEffect(() => {
+    if (user && role) {
+      if (role === 'admin') {
+        navigate('/admin', { replace: true })
+      } else {
+        navigate('/vendedor', { replace: true })
+      }
+    }
+  }, [user, role, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,10 +34,18 @@ const Login = () => {
 
     try {
       setIsLoading(true)
-      await signIn(email, password)
-      navigate('/admin')
+      // signIn ahora retorna el rol directamente
+      const userRole = await signIn(email, password)
+      
+      // Redirigir inmediatamente según el rol retornado
+      if (userRole === 'admin') {
+        navigate('/admin', { replace: true })
+      } else {
+        navigate('/vendedor', { replace: true })
+      }
     } catch (error) {
       console.error('Error al iniciar sesión:', error)
+      // El error ya se muestra en el toast, no hacer nada más
     } finally {
       setIsLoading(false)
     }

@@ -42,24 +42,32 @@ export const useAllIngredientes = () => {
 }
 
 // Hook para obtener ingredientes con stock crítico
+// OPTIMIZADO: Usa función SQL que filtra directamente en la BD
 export const useIngredientesCriticos = () => {
   return useQuery({
     queryKey: ['ingredientes-criticos'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('ingredientes')
-        .select('*')
-        .filter('activo', 'eq', true)
-        .order('stock_actual')
+      // Llamar a la función SQL optimizada que filtra en la BD
+      const { data, error } = await supabase.rpc('obtener_ingredientes_criticos')
 
-      if (error) throw error
+      if (error) {
+        // Fallback: si la función no existe, usar query tradicional
+        console.warn('Función RPC no disponible, usando query tradicional:', error.message)
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('ingredientes')
+          .select('*')
+          .eq('activo', true)
+          .order('stock_actual')
+
+        if (fallbackError) throw fallbackError
+        
+        // Filtrar en cliente como fallback
+        return (fallbackData as Ingrediente[])
+          .filter(ing => ing.stock_actual <= ing.stock_minimo)
+          .sort((a, b) => a.stock_actual - b.stock_actual)
+      }
       
-      // Filtrar ingredientes donde stock_actual <= stock_minimo
-      const ingredientesCriticos = (data as Ingrediente[]).filter(
-        ing => ing.stock_actual <= ing.stock_minimo
-      )
-      
-      return ingredientesCriticos
+      return data as Ingrediente[]
     },
     staleTime: 1000 * 60, // 1 minuto - se actualiza frecuentemente
   })

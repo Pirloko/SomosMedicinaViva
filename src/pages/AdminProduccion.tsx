@@ -55,7 +55,11 @@ type IngredienteSeleccionado = {
   stock_despues: number
 }
 
-const AdminProduccion = () => {
+interface AdminProduccionProps {
+  hideHeader?: boolean
+}
+
+const AdminProduccion = ({ hideHeader = false }: AdminProduccionProps) => {
   const navigate = useNavigate()
   const { toast } = useToast()
   const queryClient = useQueryClient()
@@ -223,31 +227,33 @@ const AdminProduccion = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
-              </Button>
-              <div>
-                <h1 className="font-display text-xl font-semibold text-foreground">
-                  Registrar Producción
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  Selecciona producto, ingredientes y cantidades utilizadas
-                </p>
+    <div className={hideHeader ? "" : "min-h-screen bg-background"}>
+      {/* Header - Solo mostrar si no está embebido */}
+      {!hideHeader && (
+        <header className="border-b bg-card sticky top-0 z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Volver
+                </Button>
+                <div>
+                  <h1 className="font-display text-xl font-semibold text-foreground">
+                    Registrar Producción
+                  </h1>
+                  <p className="text-xs text-muted-foreground">
+                    Selecciona producto, ingredientes y cantidades utilizadas
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className={hideHeader ? "max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" : "max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8"}>
         {/* Info Card */}
         <Alert className="mb-6 border-primary bg-primary/5">
           <Factory className="h-4 w-4 text-primary" />
@@ -403,7 +409,9 @@ const AdminProduccion = () => {
                           {ingredientesSeleccionados.map((ing) => {
                             const ingrediente = ingredientes?.find(i => i.id === ing.ingrediente_id)
                             const esInsuficiente = ing.stock_despues < 0
-                            const quedaBajo = ing.stock_despues < ing.stock_actual * 0.2 // 20% del stock
+                            // Verificar si queda bajo comparando con stock_minimo del ingrediente
+                            const stockMinimo = ingrediente?.stock_minimo || 0
+                            const quedaBajo = ing.stock_despues > 0 && ing.stock_despues <= stockMinimo
                             const costoIngrediente = ing.cantidad * (ingrediente?.costo_unitario || 0)
                             
                             return (

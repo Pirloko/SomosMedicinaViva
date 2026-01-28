@@ -30,7 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { ArrowLeft, Plus, Edit, Trash2, Search, Loader2, Eye, EyeOff, MoreVertical, AlertTriangle, Calculator } from 'lucide-react'
+import { ArrowLeft, Plus, Edit, Trash2, Search, Loader2, Eye, EyeOff, MoreVertical, AlertTriangle } from 'lucide-react'
 
 const AdminProductos = () => {
   const navigate = useNavigate()
@@ -204,15 +204,6 @@ const AdminProductos = () => {
                             title="Editar producto"
                           >
                             <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate(`/admin/productos/${product.id}/costos`)}
-                            title="Gestionar ingredientes y costos"
-                            className="text-primary hover:text-primary"
-                          >
-                            <Calculator className="w-4 h-4" />
                           </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>

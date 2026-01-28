@@ -124,7 +124,7 @@ const AdminHeroCarousel = () => {
               </Button>
               <div>
                 <h1 className="font-display text-xl font-semibold text-foreground">
-                  Carrusel del Hero (Inicio)
+                  Imágenes de la portada
                 </h1>
                 <p className="text-xs text-muted-foreground">
                   {imagenes?.length || 0} imágenes · {imagenesActivas} activas
@@ -146,10 +146,10 @@ const AdminHeroCarousel = () => {
           <div className="flex items-start gap-3">
             <ImageIcon className="w-5 h-5 text-primary mt-0.5" />
             <div className="text-sm text-foreground">
-              <p className="font-semibold mb-1">🎠 Sobre el Carrusel</p>
+              <p className="font-semibold mb-1">Sobre las imágenes de portada</p>
               <p className="text-muted-foreground">
-                Las imágenes activas se mostrarán en el carrusel de la sección Hero (Inicio). 
-                Cambiarán automáticamente cada 2 segundos con efecto giratorio de entrada. Recomendamos usar 3-5 imágenes.
+                Las imágenes activas se mostrarán en la portada de la web (la primera pantalla que ven los clientes). 
+                Cambiarán solas cada 2 segundos. Recomendamos usar 3 a 5 imágenes.
               </p>
             </div>
           </div>
@@ -180,7 +180,7 @@ const AdminHeroCarousel = () => {
                 {imagenes.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
-                      No hay imágenes en el carrusel
+                      No hay imágenes en la portada
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -192,7 +192,7 @@ const AdminHeroCarousel = () => {
                       <TableCell>
                         <img
                           src={imagen.imagen_url}
-                          alt={imagen.titulo || 'Hero'}
+                          alt={imagen.titulo || 'Imagen de portada'}
                           className="w-20 h-20 object-cover rounded-lg"
                         />
                       </TableCell>
@@ -268,7 +268,7 @@ const AdminHeroCarousel = () => {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingImagen ? 'Editar Imagen del Carrusel' : 'Nueva Imagen del Carrusel'}
+              {editingImagen ? 'Editar imagen de portada' : 'Nueva imagen de portada'}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
@@ -278,7 +278,7 @@ const AdminHeroCarousel = () => {
                 currentImageUrl={formData.imagen_url}
                 onImageUploaded={(url) => setFormData({ ...formData, imagen_url: url })}
                 folder="otros"
-                label="Imagen del Hero"
+                label="Imagen de portada"
               />
 
               {/* Título */}
@@ -316,7 +316,7 @@ const AdminHeroCarousel = () => {
                   onChange={(e) => setFormData({ ...formData, orden: parseInt(e.target.value) || 0 })}
                 />
                 <p className="text-xs text-muted-foreground">
-                  El orden determina en qué posición aparece en el carrusel
+                  El orden determina en qué posición aparece en la portada
                 </p>
               </div>
             </div>
@@ -342,7 +342,7 @@ const AdminHeroCarousel = () => {
               ¿Eliminar imagen?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará la imagen del carrusel permanentemente.
+              Esta acción eliminará la imagen de la portada permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

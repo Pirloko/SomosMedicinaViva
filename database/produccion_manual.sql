@@ -41,6 +41,11 @@ BEGIN
   -- Calcular nuevo stock
   v_stock_nuevo := v_stock_anterior + p_stock_producido;
 
+  -- Validar que el stock producido sea mayor a 0
+  IF p_stock_producido <= 0 THEN
+    RAISE EXCEPTION 'El stock producido debe ser mayor a 0';
+  END IF;
+
   -- Calcular costo total de todos los ingredientes
   FOR v_ingrediente IN SELECT * FROM jsonb_array_elements(p_ingredientes)
   LOOP
@@ -48,7 +53,7 @@ BEGIN
       ((v_ingrediente->>'cantidad')::DECIMAL * (v_ingrediente->>'costo_unitario')::DECIMAL);
   END LOOP;
 
-  -- Calcular costo unitario del producto
+  -- Calcular costo unitario del producto (validado que p_stock_producido > 0)
   v_costo_unitario := v_costo_total / p_stock_producido;
 
   -- Actualizar stock y costo del producto
