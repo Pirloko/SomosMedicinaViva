@@ -113,32 +113,30 @@ const AdminUsuarios = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
-              </Button>
-              <div>
-                <h1 className="font-display text-xl font-semibold text-foreground">
-                  Gestión de Usuarios
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  Administrar usuarios vendedores
-                </p>
-              </div>
-            </div>
-            <Button onClick={handleOpenDialog}>
-              <UserPlus className="w-4 h-4 mr-2" />
-              Nuevo Vendedor
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="shrink-0 -ml-2">
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Volver</span>
             </Button>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg sm:text-xl font-semibold text-foreground">
+                Usuarios
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Administrar usuarios vendedores
+              </p>
+            </div>
           </div>
+          <Button onClick={handleOpenDialog} className="w-full sm:w-auto min-h-[44px] shrink-0">
+            <UserPlus className="w-4 h-4 mr-2" />
+            Nuevo Vendedor
+          </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -147,89 +145,146 @@ const AdminUsuarios = () => {
           <div className="space-y-6">
             {/* Vendedores */}
             <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
-              <div className="p-4 border-b">
-                <h2 className="text-lg font-semibold">Vendedores ({vendedores.length})</h2>
-                <p className="text-sm text-muted-foreground">
-                  Usuarios que pueden registrar ventas
-                </p>
+              <div className="p-4 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h2 className="text-lg font-semibold">Vendedores ({vendedores.length})</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Usuarios que pueden registrar ventas
+                  </p>
+                </div>
               </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nombre de Usuario</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Rol</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead>Fecha de Creación</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {vendedores.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
-                        No hay vendedores registrados
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    vendedores.map((usuario) => (
-                      <TableRow key={usuario.id}>
-                        <TableCell className="font-medium">{usuario.nombre_usuario}</TableCell>
-                        <TableCell>{usuario.email || 'N/A'}</TableCell>
-                        <TableCell>
+
+              {/* Mobile: Vendedores Cards */}
+              <div className="block md:hidden p-4 space-y-4">
+                {vendedores.length === 0 ? (
+                  <div className="py-12 text-center text-muted-foreground text-sm">
+                    No hay vendedores registrados
+                  </div>
+                ) : (
+                  vendedores.map((usuario) => (
+                    <div key={usuario.id} className="rounded-xl border bg-background p-4 flex flex-col gap-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-foreground text-base break-words">{usuario.nombre_usuario}</p>
+                          <p className="text-sm text-muted-foreground break-all mt-0.5">{usuario.email || 'N/A'}</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2 shrink-0">
                           <Badge variant="secondary">{usuario.rol}</Badge>
-                        </TableCell>
-                        <TableCell>
                           {usuario.activo ? (
                             <Badge className="bg-green-100 text-green-700">Activo</Badge>
                           ) : (
                             <Badge variant="destructive">Inactivo</Badge>
                           )}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(usuario.created_at).toLocaleDateString('es-CL')}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreVertical className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleToggleActivo(usuario)}>
-                                {usuario.activo ? (
-                                  <>
-                                    <EyeOff className="w-4 h-4 mr-2" />
-                                    Desactivar
-                                  </>
-                                ) : (
-                                  <>
-                                    <Eye className="w-4 h-4 mr-2" />
-                                    Activar
-                                  </>
-                                )}
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => setDeleteId({
-                                  id: usuario.id,
-                                  user_id: usuario.user_id,
-                                  nombre: usuario.nombre_usuario,
-                                })}
-                                className="text-destructive focus:text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Eliminar
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground border-t pt-3">
+                        Creado: {new Date(usuario.created_at).toLocaleDateString('es-CL')}
+                      </p>
+                      <div className="flex gap-2 pt-2 border-t">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="flex-1 min-h-[44px]">
+                              <MoreVertical className="w-4 h-4 mr-2" /> Acciones
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start">
+                            <DropdownMenuItem onClick={() => handleToggleActivo(usuario)}>
+                              {usuario.activo ? (
+                                <><EyeOff className="w-4 h-4 mr-2" /> Desactivar</>
+                              ) : (
+                                <><Eye className="w-4 h-4 mr-2" /> Activar</>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => setDeleteId({
+                                id: usuario.id,
+                                user_id: usuario.user_id,
+                                nombre: usuario.nombre_usuario,
+                              })}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Desktop: Vendedores Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nombre de Usuario</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Rol</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead>Fecha de Creación</TableHead>
+                      <TableHead className="text-right">Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {vendedores.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                          No hay vendedores registrados
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : (
+                      vendedores.map((usuario) => (
+                        <TableRow key={usuario.id}>
+                          <TableCell className="font-medium">{usuario.nombre_usuario}</TableCell>
+                          <TableCell>{usuario.email || 'N/A'}</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">{usuario.rol}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {usuario.activo ? (
+                              <Badge className="bg-green-100 text-green-700">Activo</Badge>
+                            ) : (
+                              <Badge variant="destructive">Inactivo</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>{new Date(usuario.created_at).toLocaleDateString('es-CL')}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleToggleActivo(usuario)}>
+                                  {usuario.activo ? (
+                                    <><EyeOff className="w-4 h-4 mr-2" /> Desactivar</>
+                                  ) : (
+                                    <><Eye className="w-4 h-4 mr-2" /> Activar</>
+                                  )}
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => setDeleteId({
+                                    id: usuario.id,
+                                    user_id: usuario.user_id,
+                                    nombre: usuario.nombre_usuario,
+                                  })}
+                                  className="text-destructive focus:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
 
             {/* Admins (solo lectura) */}
@@ -241,34 +296,60 @@ const AdminUsuarios = () => {
                     Usuarios con acceso completo al sistema
                   </p>
                 </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nombre de Usuario</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Rol</TableHead>
-                      <TableHead>Estado</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {admins.map((usuario) => (
-                      <TableRow key={usuario.id}>
-                        <TableCell className="font-medium">{usuario.nombre_usuario}</TableCell>
-                        <TableCell>{usuario.email || 'N/A'}</TableCell>
-                        <TableCell>
+
+                {/* Mobile: Admins Cards */}
+                <div className="block md:hidden p-4 space-y-4">
+                  {admins.map((usuario) => (
+                    <div key={usuario.id} className="rounded-xl border bg-background p-4 flex flex-col gap-3">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-foreground text-base break-words">{usuario.nombre_usuario}</p>
+                          <p className="text-sm text-muted-foreground break-all mt-0.5">{usuario.email || 'N/A'}</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2 shrink-0">
                           <Badge className="bg-blue-100 text-blue-700">{usuario.rol}</Badge>
-                        </TableCell>
-                        <TableCell>
                           {usuario.activo ? (
                             <Badge className="bg-green-100 text-green-700">Activo</Badge>
                           ) : (
                             <Badge variant="destructive">Inactivo</Badge>
                           )}
-                        </TableCell>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop: Admins Table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nombre de Usuario</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Rol</TableHead>
+                        <TableHead>Estado</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {admins.map((usuario) => (
+                        <TableRow key={usuario.id}>
+                          <TableCell className="font-medium">{usuario.nombre_usuario}</TableCell>
+                          <TableCell>{usuario.email || 'N/A'}</TableCell>
+                          <TableCell>
+                            <Badge className="bg-blue-100 text-blue-700">{usuario.rol}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {usuario.activo ? (
+                              <Badge className="bg-green-100 text-green-700">Activo</Badge>
+                            ) : (
+                              <Badge variant="destructive">Inactivo</Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             )}
           </div>

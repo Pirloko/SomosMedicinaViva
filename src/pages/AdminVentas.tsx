@@ -2,6 +2,7 @@ import { type ReactNode, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useVentas, useUpdateVenta } from '@/hooks/useVentas'
 import { useAuth } from '@/contexts/AuthContext'
+import { Database } from '@/types/database.types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -43,6 +44,18 @@ import {
   XCircle
 } from 'lucide-react'
 
+type VentaRow = Database['public']['Tables']['ventas']['Row']
+type VentaConProductos = VentaRow & {
+  venta_productos?: Array<{
+    id?: string
+    cantidad: number
+    precio_unitario?: number
+    subtotal?: number
+    productos?: { nombre?: string; imagen_url?: string; categoria?: string } | null
+  }>
+  productos?: { nombre?: string; imagen_url?: string } | null
+}
+
 // Opciones por estado: desde "preparando" se puede ir a Enviado O Entregado (retiro en tienda)
 type OpcionEstado = { estado: string; label: string; icon: ReactNode }
 const OPCIONES_POR_ESTADO: Record<string, OpcionEstado[]> = {
@@ -70,28 +83,26 @@ const AdminVentas = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [estadoFilter, setEstadoFilter] = useState('all')
 
+  const ventasList = (ventas ?? []) as VentaConProductos[]
+
   // Filtrar ventas
-  const filteredVentas = ventas?.filter(venta => {
-    // Buscar en productos de la venta
-    const productosVenta = (venta as any).venta_productos || []
+  const filteredVentas = ventasList.filter((venta: VentaConProductos) => {
+    const productosVenta = venta.venta_productos ?? []
     const nombresProductos = productosVenta
-      .map((vp: any) => vp.productos?.nombre?.toLowerCase() || '')
+      .map((vp) => vp.productos?.nombre?.toLowerCase() ?? '')
       .join(' ')
-    
-    const matchSearch = 
+    const matchSearch =
       venta.cliente_nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       venta.cliente_telefono?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       nombresProductos.includes(searchTerm.toLowerCase())
-    
     const matchEstado = estadoFilter === 'all' || venta.estado === estadoFilter
-
     return matchSearch && matchEstado
   })
 
   // Estadísticas
-  const totalVentas = ventas?.length || 0
-  const totalIngresos = ventas?.reduce((sum, v) => sum + Number(v.total), 0) || 0
-  const ventasPendientes = ventas?.filter(v => v.estado === 'pendiente').length || 0
+  const totalVentas = ventasList.length
+  const totalIngresos = ventasList.reduce((sum, v) => sum + Number(v.total), 0)
+  const ventasPendientes = ventasList.filter((v) => v.estado === 'pendiente').length
 
   const getEstadoBadge = (estado: string) => {
     const badges: Record<string, { variant: any; color: string }> = {
@@ -114,83 +125,82 @@ const AdminVentas = () => {
     })
   }
 
+  const ventaProductos = (v: VentaConProductos) => v.venta_productos
+  const hasVentaProductos = (v: VentaConProductos) => (v.venta_productos?.length ?? 0) > 0
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate(basePath)}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
-              </Button>
-              <div>
-                <h1 className="font-display text-xl font-semibold text-foreground">
-                  {isVendedor ? 'Mis Ventas' : 'Gestión de Ventas'}
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  {totalVentas} ventas · {ventasPendientes} pendientes
-                </p>
-              </div>
-            </div>
-            <Button onClick={() => navigate(`${basePath}/ventas/nueva`)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Registrar Venta
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Button variant="ghost" size="sm" onClick={() => navigate(basePath)} className="shrink-0 -ml-2">
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Volver</span>
             </Button>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg sm:text-xl font-semibold text-foreground">
+                {isVendedor ? 'Mis Ventas' : 'Gestión de Ventas'}
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {totalVentas} ventas · {ventasPendientes} pendientes
+              </p>
+            </div>
           </div>
+          <Button onClick={() => navigate(`${basePath}/ventas/nueva`)} className="w-full sm:w-auto min-h-[44px] shrink-0">
+            <Plus className="w-4 h-4 mr-2" />
+            Registrar Venta
+          </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid sm:grid-cols-3 gap-4 mb-6">
-          <div className="bg-card rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="bg-card rounded-xl p-4 sm:p-6 shadow-sm min-h-[44px] flex items-center">
+            <div className="flex items-center justify-between w-full">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Total Ventas</p>
-                <p className="text-2xl font-bold text-foreground">{totalVentas}</p>
+                <p className="text-xl sm:text-2xl font-bold text-foreground">{totalVentas}</p>
               </div>
-              <ShoppingBag className="w-8 h-8 text-blue-500" />
+              <ShoppingBag className="w-7 h-7 sm:w-8 sm:h-8 text-blue-500 shrink-0" />
             </div>
           </div>
-          <div className="bg-card rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
+          <div className="bg-card rounded-xl p-4 sm:p-6 shadow-sm min-h-[44px] flex items-center">
+            <div className="flex items-center justify-between w-full">
+              <div className="min-w-0">
                 <p className="text-sm text-muted-foreground mb-1">Ingresos Totales</p>
-                <p className="text-2xl font-bold text-foreground">
-                  ${totalIngresos.toLocaleString('es-CL')}
-                </p>
+                <p className="text-xl sm:text-2xl font-bold text-foreground truncate">${totalIngresos.toLocaleString('es-CL')}</p>
               </div>
-              <DollarSign className="w-8 h-8 text-green-500" />
+              <DollarSign className="w-7 h-7 sm:w-8 sm:h-8 text-green-500 shrink-0" />
             </div>
           </div>
-          <div className="bg-card rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between">
+          <div className="bg-card rounded-xl p-4 sm:p-6 shadow-sm min-h-[44px] flex items-center">
+            <div className="flex items-center justify-between w-full">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Pendientes</p>
-                <p className="text-2xl font-bold text-foreground">{ventasPendientes}</p>
+                <p className="text-xl sm:text-2xl font-bold text-foreground">{ventasPendientes}</p>
               </div>
-              <TrendingUp className="w-8 h-8 text-orange-500" />
+              <TrendingUp className="w-7 h-7 sm:w-8 sm:h-8 text-orange-500 shrink-0" />
             </div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="grid sm:grid-cols-2 gap-4 mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Buscar por cliente, teléfono o producto..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 min-h-[44px]"
             />
           </div>
           <Select value={estadoFilter} onValueChange={setEstadoFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="min-h-[44px] w-full sm:w-auto">
               <SelectValue placeholder="Filtrar por estado" />
             </SelectTrigger>
             <SelectContent>
@@ -212,9 +222,110 @@ const AdminVentas = () => {
           </div>
         )}
 
-        {/* Ventas Table */}
+        {/* Mobile: Cards */}
         {!isLoading && filteredVentas && (
-          <div className="bg-card rounded-xl border shadow-sm overflow-x-auto">
+          <div className="block md:hidden space-y-4">
+            {filteredVentas.length === 0 ? (
+              <div className="bg-card rounded-xl border shadow-sm py-16 text-center text-muted-foreground">
+                No se encontraron ventas
+              </div>
+            ) : (
+              filteredVentas.map((venta) => (
+                <div key={venta.id} className="bg-card rounded-xl border shadow-sm overflow-hidden p-4 flex flex-col gap-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Fecha</p>
+                      <p className="font-medium text-sm">
+                        {new Date(venta.fecha_venta).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(venta.fecha_venta).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                    {getEstadoBadge(venta.estado)}
+                  </div>
+                  <div className="border-t pt-3">
+                    <p className="text-xs text-muted-foreground mb-0.5">Cliente</p>
+                    <p className="font-semibold text-foreground break-words">{venta.cliente_nombre || 'Sin nombre'}</p>
+                    {venta.cliente_telefono && (
+                      <p className="text-sm text-muted-foreground">{venta.cliente_telefono}</p>
+                    )}
+                  </div>
+                  <div className="border-t pt-3 space-y-2">
+                    <p className="text-xs text-muted-foreground">Productos</p>
+                    {hasVentaProductos(venta) ? (
+                      ventaProductos(venta)!.map((vp: any, idx: number) => (
+                        <div key={vp.id || idx} className="flex items-center gap-3">
+                          {vp.productos?.imagen_url ? (
+                            <img src={vp.productos.imagen_url} alt={vp.productos?.nombre} className="w-12 h-12 object-cover rounded-lg shrink-0" />
+                          ) : (
+                            <div className="w-12 h-12 rounded-lg bg-muted shrink-0 flex items-center justify-center">
+                              <ShoppingBag className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium line-clamp-2 break-words">{vp.productos?.nombre || 'Producto eliminado'}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {vp.cantidad}× ${(vp.precio_unitario || 0).toLocaleString('es-CL')} = ${(vp.subtotal || 0).toLocaleString('es-CL')}
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        {(venta.productos as any)?.imagen_url && (
+                          <img src={(venta.productos as any).imagen_url} alt="" className="w-12 h-12 object-cover rounded-lg shrink-0" />
+                        )}
+                        <p className="text-sm font-medium">{(venta.productos as any)?.nombre || 'Producto eliminado'}</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t">
+                    {venta.zona_delivery && (
+                      <p className="text-xs text-muted-foreground">Zona: {venta.zona_delivery}</p>
+                    )}
+                    <p className="font-bold text-primary text-lg ml-auto">${venta.total.toLocaleString('es-CL')}</p>
+                  </div>
+                  <div className="flex gap-2 pt-2 border-t">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="flex-1 min-h-[44px]" aria-label="Acciones">
+                          <MoreVertical className="w-4 h-4 mr-2" />
+                          Cambiar estado
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="min-w-[200px]">
+                        {(OPCIONES_POR_ESTADO[venta.estado] ?? []).map((opcion) => (
+                          <DropdownMenuItem
+                            key={opcion.estado}
+                            onClick={() => handleCambiarEstado(venta.id, opcion.estado)}
+                            className="font-medium"
+                          >
+                            {opcion.icon}
+                            <span className="ml-2">{opcion.label}</span>
+                          </DropdownMenuItem>
+                        ))}
+                        {venta.estado !== 'cancelado' && venta.estado !== 'entregado' && (
+                          <DropdownMenuItem
+                            onClick={() => handleCambiarEstado(venta.id, 'cancelado')}
+                            className="text-amber-600 focus:text-amber-600"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            <span className="ml-2">Cancelar pedido</span>
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Desktop: Table */}
+        {!isLoading && filteredVentas && (
+          <div className="hidden md:block bg-card rounded-xl border shadow-sm overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -265,8 +376,8 @@ const AdminVentas = () => {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-2">
-                          {(venta as any).venta_productos && (venta as any).venta_productos.length > 0 ? (
-                            (venta as any).venta_productos.map((vp: any, idx: number) => (
+                          {hasVentaProductos(venta) ? (
+                            ventaProductos(venta)!.map((vp: any, idx: number) => (
                               <div key={vp.id || idx} className="flex items-center gap-2">
                                 {vp.productos?.imagen_url && (
                                   <img
@@ -286,7 +397,6 @@ const AdminVentas = () => {
                               </div>
                             ))
                           ) : (
-                            // Compatibilidad: Si no hay venta_productos, mostrar datos antiguos
                             <div className="flex items-center gap-2">
                               {(venta.productos as any)?.imagen_url && (
                                 <img
@@ -304,13 +414,13 @@ const AdminVentas = () => {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          {(venta as any).venta_productos && (venta as any).venta_productos.length > 0 ? (
+                          {hasVentaProductos(venta) ? (
                             <>
                               <Badge variant="outline">
-                                {(venta as any).venta_productos.reduce((sum: number, vp: any) => sum + vp.cantidad, 0)} unidades
+                                {ventaProductos(venta)!.reduce((sum: number, vp: any) => sum + vp.cantidad, 0)} unidades
                               </Badge>
                               <p className="text-xs text-muted-foreground">
-                                {(venta as any).venta_productos.length} producto{(venta as any).venta_productos.length > 1 ? 's' : ''}
+                                {ventaProductos(venta)!.length} producto{ventaProductos(venta)!.length > 1 ? 's' : ''}
                               </p>
                             </>
                           ) : (
@@ -335,7 +445,6 @@ const AdminVentas = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="min-w-[180px]">
-                            {/* Desde preparando: Enviado y Entregado (retiro en tienda). Desde enviado: Entregado */}
                             {(OPCIONES_POR_ESTADO[venta.estado] ?? []).map((opcion) => (
                               <DropdownMenuItem
                                 key={opcion.estado}
@@ -346,7 +455,6 @@ const AdminVentas = () => {
                                 <span className="ml-2">{opcion.label}</span>
                               </DropdownMenuItem>
                             ))}
-                            {/* Cancelar pedido: solo si aún no está entregado ni cancelado */}
                             {venta.estado !== 'cancelado' && venta.estado !== 'entregado' && (
                               <DropdownMenuItem
                                 onClick={() => handleCambiarEstado(venta.id, 'cancelado')}

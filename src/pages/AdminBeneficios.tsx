@@ -140,32 +140,30 @@ const AdminBeneficios = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
-              </Button>
-              <div>
-                <h1 className="font-display text-xl font-semibold text-foreground">
-                  Gestión de Beneficios (Apto Para)
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  {beneficios?.length || 0} beneficios configurados
-                </p>
-              </div>
-            </div>
-            <Button onClick={() => handleOpenDialog()}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nuevo Beneficio
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="shrink-0 -ml-2">
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Volver</span>
             </Button>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg sm:text-xl font-semibold text-foreground">
+                Beneficios (Apto Para)
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {beneficios?.length || 0} beneficios configurados
+              </p>
+            </div>
           </div>
+          <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto min-h-[44px] shrink-0">
+            <Plus className="w-4 h-4 mr-2" />
+            Nuevo Beneficio
+          </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Loading State */}
         {isLoading && (
           <div className="flex items-center justify-center py-20">
@@ -173,9 +171,79 @@ const AdminBeneficios = () => {
           </div>
         )}
 
-        {/* Beneficios Table */}
+        {/* Mobile: Cards */}
         {!isLoading && beneficios && (
-          <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+          <div className="block md:hidden space-y-4">
+            {beneficios.length === 0 ? (
+              <div className="bg-card rounded-xl border shadow-sm py-16 text-center text-muted-foreground">
+                No hay beneficios configurados
+              </div>
+            ) : (
+              beneficios.map((beneficio) => (
+                <div key={beneficio.id} className="bg-card rounded-xl border shadow-sm overflow-hidden p-4 flex flex-col gap-4">
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                      <code className="text-xs font-medium truncate max-w-full px-1">{beneficio.icono}</code>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <Badge variant="outline" className="mb-2">Orden {beneficio.orden}</Badge>
+                      <p className="font-semibold text-foreground text-base break-words">{beneficio.titulo}</p>
+                      {beneficio.descripcion && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">{beneficio.descripcion}</p>
+                      )}
+                      {beneficio.activo ? (
+                        <div className="flex items-center gap-1 text-green-600 mt-2">
+                          <Eye className="w-4 h-4 shrink-0" />
+                          <span className="text-sm">Activo</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-muted-foreground mt-2">
+                          <EyeOff className="w-4 h-4 shrink-0" />
+                          <span className="text-sm">Inactivo</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {beneficio.color && (
+                    <div className="border-t pt-3">
+                      <span className={`inline-flex px-3 py-1 rounded-lg text-xs font-medium ${beneficio.color}`}>
+                        Color
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex gap-2 pt-2 border-t">
+                    <Button variant="outline" size="sm" onClick={() => handleOpenDialog(beneficio)} className="flex-1 min-h-[44px]">
+                      <Edit className="w-4 h-4 mr-2" /> Editar
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px] px-3">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setDeleteId(beneficio.id)}>
+                          <EyeOff className="w-4 h-4 mr-2" /> Desactivar
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => setDeletePermanentlyId(beneficio.id)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" /> Eliminar permanentemente
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Desktop: Table */}
+        {!isLoading && beneficios && (
+          <div className="hidden md:block bg-card rounded-xl border shadow-sm overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -205,14 +273,10 @@ const AdminBeneficios = () => {
                         <p className="font-medium">{beneficio.titulo}</p>
                       </TableCell>
                       <TableCell>
-                        <p className="text-sm text-muted-foreground line-clamp-2 max-w-md">
-                          {beneficio.descripcion}
-                        </p>
+                        <p className="text-sm text-muted-foreground line-clamp-2 max-w-md">{beneficio.descripcion}</p>
                       </TableCell>
                       <TableCell>
-                        <code className="text-xs bg-muted px-2 py-1 rounded">
-                          {beneficio.icono}
-                        </code>
+                        <code className="text-xs bg-muted px-2 py-1 rounded">{beneficio.icono}</code>
                       </TableCell>
                       <TableCell>
                         <div className={`inline-flex px-3 py-1 rounded ${beneficio.color} text-xs font-medium`}>
@@ -234,11 +298,7 @@ const AdminBeneficios = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleOpenDialog(beneficio)}
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(beneficio)}>
                             <Edit className="w-4 h-4" />
                           </Button>
                           <DropdownMenu>
@@ -249,16 +309,14 @@ const AdminBeneficios = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => setDeleteId(beneficio.id)}>
-                                <EyeOff className="w-4 h-4 mr-2" />
-                                Desactivar
+                                <EyeOff className="w-4 h-4 mr-2" /> Desactivar
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 onClick={() => setDeletePermanentlyId(beneficio.id)}
                                 className="text-destructive focus:text-destructive"
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Eliminar Permanentemente
+                                <Trash2 className="w-4 h-4 mr-2" /> Eliminar Permanentemente
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

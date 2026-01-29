@@ -188,39 +188,37 @@ const AdminAbout = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
-              </Button>
-              <div>
-                <h1 className="font-display text-xl font-semibold text-foreground">
-                  Gestión de "Nosotros"
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  Contenido y valores de la sección
-                </p>
-              </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="shrink-0 -ml-2">
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Volver</span>
+            </Button>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg sm:text-xl font-semibold text-foreground">
+                Gestión de &quot;Nosotros&quot;
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Contenido y valores de la sección
+              </p>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Contenido Principal Card */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="min-w-0">
               <CardTitle>Contenido Principal</CardTitle>
               <CardDescription>
-                Texto, imagen y estadísticas de la sección "Nosotros"
+                Texto, imagen y estadísticas de la sección &quot;Nosotros&quot;
               </CardDescription>
             </div>
             {!isEditing && (
-              <Button onClick={handleEditContent} disabled={loadingContent}>
+              <Button onClick={handleEditContent} disabled={loadingContent} className="w-full sm:w-auto min-h-[44px] shrink-0">
                 <Edit className="w-4 h-4 mr-2" />
                 Editar
               </Button>
@@ -271,10 +269,10 @@ const AdminAbout = () => {
                   </div>
                 )}
 
-                <div className="flex gap-6">
+                <div className="flex flex-col sm:flex-row gap-6">
                   <div>
                     <Label>Estadística (Número)</Label>
-                    <p className="text-2xl font-bold text-primary">{aboutContent.estadistica_numero}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-primary">{aboutContent.estadistica_numero}</p>
                   </div>
                   <div>
                     <Label>Estadística (Texto)</Label>
@@ -359,11 +357,11 @@ const AdminAbout = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-3">
-                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)} className="min-h-[44px]">
                     Cancelar
                   </Button>
-                  <Button type="submit" disabled={updateContent.isPending}>
+                  <Button type="submit" disabled={updateContent.isPending} className="min-h-[44px]">
                     {updateContent.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -381,14 +379,14 @@ const AdminAbout = () => {
 
         {/* Valores/Etiquetas Card */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="min-w-0">
               <CardTitle>Valores / Etiquetas</CardTitle>
               <CardDescription>
                 Con Amor, Natural, Calidad, etc.
               </CardDescription>
             </div>
-            <Button onClick={() => handleOpenValueDialog()}>
+            <Button onClick={() => handleOpenValueDialog()} className="w-full sm:w-auto min-h-[44px] shrink-0">
               <Plus className="w-4 h-4 mr-2" />
               Nuevo Valor
             </Button>
@@ -401,103 +399,163 @@ const AdminAbout = () => {
             )}
 
             {!loadingValues && values && (
-              <div className="rounded-lg border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-20">Orden</TableHead>
-                      <TableHead className="w-20">Ícono</TableHead>
-                      <TableHead>Título</TableHead>
-                      <TableHead>Descripción</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead className="text-right">Acciones</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {values.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
-                          No hay valores configurados
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      values.map((value) => {
-                        const IconComponent = getIconComponent(value.icono)
-                        return (
-                          <TableRow key={value.id}>
-                            <TableCell>
-                              <Badge variant="outline">{value.orden}</Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                                <IconComponent className="w-5 h-5 text-primary" />
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <p className="font-medium">{value.titulo}</p>
-                            </TableCell>
-                            <TableCell>
-                              <p className="text-sm text-muted-foreground">{value.descripcion}</p>
-                            </TableCell>
-                            <TableCell>
+              <>
+                {/* Mobile: Cards */}
+                <div className="block md:hidden space-y-4">
+                  {values.length === 0 ? (
+                    <div className="rounded-xl border bg-card py-12 text-center text-muted-foreground">
+                      No hay valores configurados
+                    </div>
+                  ) : (
+                    values.map((value) => {
+                      const IconComponent = getIconComponent(value.icono)
+                      return (
+                        <div key={value.id} className="bg-card rounded-xl border shadow-sm overflow-hidden p-4 flex flex-col gap-4">
+                          <div className="flex gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                              <IconComponent className="w-6 h-6 text-primary" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <Badge variant="outline" className="mb-2">Orden {value.orden}</Badge>
+                              <p className="font-semibold text-foreground text-base break-words">{value.titulo}</p>
+                              {value.descripcion && (
+                                <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">{value.descripcion}</p>
+                              )}
                               {value.activo ? (
-                                <div className="flex items-center gap-1 text-green-600">
-                                  <Eye className="w-4 h-4" />
+                                <div className="flex items-center gap-1 text-green-600 mt-2">
+                                  <Eye className="w-4 h-4 shrink-0" />
                                   <span className="text-sm">Activo</span>
                                 </div>
                               ) : (
-                                <div className="flex items-center gap-1 text-muted-foreground">
-                                  <EyeOff className="w-4 h-4" />
+                                <div className="flex items-center gap-1 text-muted-foreground mt-2">
+                                  <EyeOff className="w-4 h-4 shrink-0" />
                                   <span className="text-sm">Inactivo</span>
                                 </div>
                               )}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleOpenValueDialog(value)}
-                                >
-                                  <Edit className="w-4 h-4" />
+                            </div>
+                          </div>
+                          <div className="flex gap-2 pt-2 border-t">
+                            <Button variant="outline" size="sm" onClick={() => handleOpenValueDialog(value)} className="flex-1 min-h-[44px]">
+                              <Edit className="w-4 h-4 mr-2" /> Editar
+                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px] px-3">
+                                  <MoreVertical className="w-4 h-4" />
                                 </Button>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm">
-                                      <MoreVertical className="w-4 h-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    {value.activo ? (
-                                      <DropdownMenuItem onClick={() => toggleValueActivo.mutate({ id: value.id, activo: false })}>
-                                        <EyeOff className="w-4 h-4 mr-2" />
-                                        Desactivar
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {value.activo ? (
+                                  <DropdownMenuItem onClick={() => toggleValueActivo.mutate({ id: value.id, activo: false })}>
+                                    <EyeOff className="w-4 h-4 mr-2" /> Desactivar
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => toggleValueActivo.mutate({ id: value.id, activo: true })}>
+                                    <Eye className="w-4 h-4 mr-2" /> Activar
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => setDeleteId(value.id)} className="text-destructive focus:text-destructive">
+                                  <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+
+                {/* Desktop: Table */}
+                <div className="hidden md:block rounded-lg border overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-20">Orden</TableHead>
+                        <TableHead className="w-20">Ícono</TableHead>
+                        <TableHead>Título</TableHead>
+                        <TableHead>Descripción</TableHead>
+                        <TableHead>Estado</TableHead>
+                        <TableHead className="text-right">Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {values.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                            No hay valores configurados
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        values.map((value) => {
+                          const IconComponent = getIconComponent(value.icono)
+                          return (
+                            <TableRow key={value.id}>
+                              <TableCell>
+                                <Badge variant="outline">{value.orden}</Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                  <IconComponent className="w-5 h-5 text-primary" />
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <p className="font-medium">{value.titulo}</p>
+                              </TableCell>
+                              <TableCell>
+                                <p className="text-sm text-muted-foreground">{value.descripcion}</p>
+                              </TableCell>
+                              <TableCell>
+                                {value.activo ? (
+                                  <div className="flex items-center gap-1 text-green-600">
+                                    <Eye className="w-4 h-4" />
+                                    <span className="text-sm">Activo</span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-1 text-muted-foreground">
+                                    <EyeOff className="w-4 h-4" />
+                                    <span className="text-sm">Inactivo</span>
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <Button variant="ghost" size="sm" onClick={() => handleOpenValueDialog(value)}>
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="sm">
+                                        <MoreVertical className="w-4 h-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      {value.activo ? (
+                                        <DropdownMenuItem onClick={() => toggleValueActivo.mutate({ id: value.id, activo: false })}>
+                                          <EyeOff className="w-4 h-4 mr-2" /> Desactivar
+                                        </DropdownMenuItem>
+                                      ) : (
+                                        <DropdownMenuItem onClick={() => toggleValueActivo.mutate({ id: value.id, activo: true })}>
+                                          <Eye className="w-4 h-4 mr-2" /> Activar
+                                        </DropdownMenuItem>
+                                      )}
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem onClick={() => setDeleteId(value.id)} className="text-destructive focus:text-destructive">
+                                        <Trash2 className="w-4 h-4 mr-2" /> Eliminar
                                       </DropdownMenuItem>
-                                    ) : (
-                                      <DropdownMenuItem onClick={() => toggleValueActivo.mutate({ id: value.id, activo: true })}>
-                                        <Eye className="w-4 h-4 mr-2" />
-                                        Activar
-                                      </DropdownMenuItem>
-                                    )}
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem 
-                                      onClick={() => setDeleteId(value.id)}
-                                      className="text-destructive focus:text-destructive"
-                                    >
-                                      <Trash2 className="w-4 h-4 mr-2" />
-                                      Eliminar
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      })
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

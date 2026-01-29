@@ -139,42 +139,40 @@ const AdminPuntosVenta = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
-              </Button>
-              <div>
-                <h1 className="font-display text-xl font-semibold text-foreground">
-                  Gestión de Puntos de Venta
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  {puntosVenta?.length || 0} puntos de venta configurados
-                </p>
-              </div>
-            </div>
-            <Button onClick={() => handleOpenDialog()}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nuevo Punto de Venta
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="shrink-0 -ml-2">
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Volver</span>
             </Button>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg sm:text-xl font-semibold text-foreground">
+                Gestión de Puntos de Venta
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {puntosVenta?.length || 0} puntos de venta configurados
+              </p>
+            </div>
           </div>
+          <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto min-h-[44px] shrink-0">
+            <Plus className="w-4 h-4 mr-2" />
+            Nuevo Punto de Venta
+          </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Search */}
         <div className="mb-6">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Buscar puntos de venta..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 min-h-[44px]"
             />
           </div>
         </div>
@@ -186,9 +184,84 @@ const AdminPuntosVenta = () => {
           </div>
         )}
 
-        {/* Puntos Venta Table */}
+        {/* Mobile: Cards */}
         {!isLoading && filteredPuntos && (
-          <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+          <div className="block md:hidden space-y-4">
+            {filteredPuntos.length === 0 ? (
+              <div className="bg-card rounded-xl border shadow-sm py-16 text-center text-muted-foreground">
+                No se encontraron puntos de venta
+              </div>
+            ) : (
+              filteredPuntos.map((punto) => (
+                <div key={punto.id} className="bg-card rounded-xl border shadow-sm overflow-hidden p-4 flex flex-col gap-4">
+                  <div className="flex gap-4">
+                    <img
+                      src={punto.imagen_url || '/placeholder.svg'}
+                      alt={punto.nombre}
+                      className="w-20 h-20 object-cover rounded-xl shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-foreground text-base leading-snug line-clamp-2 break-words">{punto.nombre}</p>
+                      {punto.activo ? (
+                        <div className="flex items-center gap-1 text-green-600 mt-2">
+                          <Eye className="w-4 h-4 shrink-0" />
+                          <span className="text-sm">Activo</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-muted-foreground mt-2">
+                          <EyeOff className="w-4 h-4 shrink-0" />
+                          <span className="text-sm">Inactivo</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="border-t pt-3">
+                    <div className="flex items-start gap-2">
+                      <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                      <p className="text-sm text-muted-foreground break-words">{punto.direccion}</p>
+                    </div>
+                  </div>
+                  <div className="border-t pt-3 space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground">Horarios</p>
+                    <p className="text-sm text-foreground">{punto.horario_semana}</p>
+                    <p className="text-sm text-foreground">{punto.horario_sabado}</p>
+                    {punto.horario_domingo && (
+                      <p className="text-sm text-foreground">{punto.horario_domingo}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2 pt-2 border-t">
+                    <Button variant="outline" size="sm" onClick={() => handleOpenDialog(punto)} className="flex-1 min-h-[44px]">
+                      <Edit className="w-4 h-4 mr-2" /> Editar
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px] px-3">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setDeleteId(punto.id)}>
+                          <EyeOff className="w-4 h-4 mr-2" /> Desactivar
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => setDeletePermanentlyId(punto.id)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" /> Eliminar permanentemente
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Desktop: Table */}
+        {!isLoading && filteredPuntos && (
+          <div className="hidden md:block bg-card rounded-xl border shadow-sm overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -247,11 +320,7 @@ const AdminPuntosVenta = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleOpenDialog(punto)}
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(punto)}>
                             <Edit className="w-4 h-4" />
                           </Button>
                           <DropdownMenu>
@@ -262,16 +331,14 @@ const AdminPuntosVenta = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => setDeleteId(punto.id)}>
-                                <EyeOff className="w-4 h-4 mr-2" />
-                                Desactivar
+                                <EyeOff className="w-4 h-4 mr-2" /> Desactivar
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 onClick={() => setDeletePermanentlyId(punto.id)}
                                 className="text-destructive focus:text-destructive"
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Eliminar Permanentemente
+                                <Trash2 className="w-4 h-4 mr-2" /> Eliminar Permanentemente
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

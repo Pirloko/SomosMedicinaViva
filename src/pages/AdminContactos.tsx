@@ -98,33 +98,31 @@ const AdminContactos = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
-              </Button>
-              <div>
-                <h1 className="font-display text-xl font-semibold text-foreground">
-                  Mensajes de Contacto
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  {contactos?.length || 0} mensajes totales · {contactosNoLeidos} sin leer
-                </p>
-              </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="shrink-0 -ml-2">
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Volver</span>
+            </Button>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg sm:text-xl font-semibold text-foreground">
+                Mensajes de Contacto
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {contactos?.length || 0} mensajes totales · {contactosNoLeidos} sin leer
+              </p>
             </div>
-            {contactosNoLeidos > 0 && (
-              <Badge variant="destructive" className="px-3 py-1">
-                {contactosNoLeidos} nuevos
-              </Badge>
-            )}
           </div>
+          {contactosNoLeidos > 0 && (
+            <Badge variant="destructive" className="w-fit shrink-0 px-3 py-1.5">
+              {contactosNoLeidos} nuevos
+            </Badge>
+          )}
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Loading State */}
         {isLoading && (
           <div className="flex items-center justify-center py-20">
@@ -132,9 +130,110 @@ const AdminContactos = () => {
           </div>
         )}
 
-        {/* Contacts Table */}
+        {/* Mobile: Cards */}
         {!isLoading && contactos && (
-          <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+          <div className="block md:hidden space-y-4">
+            {contactos.length === 0 ? (
+              <div className="bg-card rounded-xl border shadow-sm py-16 text-center text-muted-foreground">
+                No hay mensajes de contacto
+              </div>
+            ) : (
+              contactos.map((contacto) => (
+                <div
+                  key={contacto.id}
+                  className={`bg-card rounded-xl border shadow-sm overflow-hidden p-4 flex flex-col gap-4 ${!contacto.leido ? 'ring-1 ring-primary/30' : ''}`}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-foreground text-base break-words">{contacto.nombre}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {new Date(contacto.created_at).toLocaleDateString('es-CL', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                    {contacto.respondido ? (
+                      <Badge variant="outline" className="shrink-0 text-green-600 border-green-600">
+                        ✓ Respondido
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="shrink-0 text-orange-600 border-orange-600">
+                        ⏳ Pendiente
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="border-t pt-3 space-y-1">
+                    {contacto.email && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Mail className="w-4 h-4 shrink-0" />
+                        <span className="break-all">{contacto.email}</span>
+                      </div>
+                    )}
+                    {contacto.telefono && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Phone className="w-4 h-4 shrink-0" />
+                        <span>{contacto.telefono}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="border-t pt-3">
+                    <p className="text-sm text-muted-foreground line-clamp-2 break-words">{contacto.mensaje}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 pt-2 border-t">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleToggleLeido(contacto)}
+                      className="min-h-[44px] shrink-0"
+                      title={contacto.leido ? 'Marcar como no leído' : 'Marcar como leído'}
+                    >
+                      {contacto.leido ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenDialog(contacto)}
+                      className="flex-1 min-h-[44px]"
+                      title="Ver mensaje completo"
+                    >
+                      <Eye className="w-4 h-4 mr-2" /> Ver
+                    </Button>
+                    {contacto.telefono && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleResponderWhatsApp(contacto)}
+                        className="min-h-[44px] shrink-0 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                        title="Responder por WhatsApp"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                      </Button>
+                    )}
+                    {!contacto.respondido && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => updateContacto.mutate({ id: contacto.id, updates: { respondido: true } })}
+                        className="min-h-[44px] shrink-0 bg-green-500 text-white hover:bg-green-600"
+                        title="Marcar como Respondido"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-1" /> Respondido
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Desktop: Table */}
+        {!isLoading && contactos && (
+          <div className="hidden md:block bg-card rounded-xl border shadow-sm overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -155,10 +254,7 @@ const AdminContactos = () => {
                   </TableRow>
                 ) : (
                   contactos.map((contacto) => (
-                    <TableRow 
-                      key={contacto.id}
-                      className={!contacto.leido ? 'bg-primary/5' : ''}
-                    >
+                    <TableRow key={contacto.id} className={!contacto.leido ? 'bg-primary/5' : ''}>
                       <TableCell>
                         {contacto.respondido ? (
                           <Badge variant="outline" className="w-fit text-green-600 border-green-600">
@@ -190,9 +286,7 @@ const AdminContactos = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <p className="text-sm text-muted-foreground line-clamp-2 max-w-xs">
-                          {contacto.mensaje}
-                        </p>
+                        <p className="text-sm text-muted-foreground line-clamp-2 max-w-xs">{contacto.mensaje}</p>
                       </TableCell>
                       <TableCell>
                         <p className="text-sm text-muted-foreground">
@@ -211,20 +305,11 @@ const AdminContactos = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleToggleLeido(contacto)}
-                            title={contacto.leido ? "Marcar como no leído" : "Marcar como leído"}
+                            title={contacto.leido ? 'Marcar como no leído' : 'Marcar como leído'}
                           >
-                            {contacto.leido ? (
-                              <X className="w-4 h-4" />
-                            ) : (
-                              <Check className="w-4 h-4" />
-                            )}
+                            {contacto.leido ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleOpenDialog(contacto)}
-                            title="Ver mensaje completo"
-                          >
+                          <Button variant="outline" size="sm" onClick={() => handleOpenDialog(contacto)} title="Ver mensaje completo">
                             <Eye className="w-4 h-4" />
                           </Button>
                           {contacto.telefono && (
@@ -242,17 +327,11 @@ const AdminContactos = () => {
                             <Button
                               variant="default"
                               size="sm"
-                              onClick={() => {
-                                updateContacto.mutate({
-                                  id: contacto.id,
-                                  updates: { respondido: true }
-                                })
-                              }}
+                              onClick={() => updateContacto.mutate({ id: contacto.id, updates: { respondido: true } })}
                               className="bg-green-500 text-white hover:bg-green-600"
                               title="Marcar como Respondido"
                             >
-                              <CheckCircle className="w-4 h-4 mr-1" />
-                              Respondido
+                              <CheckCircle className="w-4 h-4 mr-1" /> Respondido
                             </Button>
                           )}
                           {contacto.respondido && (
