@@ -98,6 +98,7 @@ const AdminIngredientes = () => {
 
   // Ingredientes con stock bajo
   const stockBajo = ingredientes?.filter(ing => ing.stock_actual <= ing.stock_minimo).length || 0
+  const valorTotal = ingredientes?.reduce((sum, ing) => sum + (ing.stock_actual * (ing.costo_unitario || 0)), 0) || 0
 
   const handleOpenDialog = (ingrediente?: Ingrediente) => {
     if (ingrediente) {
@@ -207,60 +208,54 @@ const AdminIngredientes = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
-              </Button>
-              <div>
-                <h1 className="font-display text-xl font-semibold text-foreground">
-                  Gestión de Ingredientes
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  {ingredientes?.length || 0} ingredientes · {stockBajo} con stock bajo · 
-                  Valor total: ${(ingredientes?.reduce((sum, ing) => sum + (ing.stock_actual * (ing.costo_unitario || 0)), 0) || 0).toLocaleString('es-CL')}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-xs text-muted-foreground">Inventario</p>
-                <p className="text-sm font-bold text-primary">
-                  ${(ingredientes?.reduce((sum, ing) => sum + (ing.stock_actual * (ing.costo_unitario || 0)), 0) || 0).toLocaleString('es-CL')}
-                </p>
-              </div>
-              <Button onClick={() => handleOpenDialog()}>
-                <Plus className="w-4 h-4 mr-2" />
-                Nuevo Ingrediente
-              </Button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="shrink-0 -ml-2">
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Volver</span>
+            </Button>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg sm:text-xl font-semibold text-foreground">
+                Gestión de Ingredientes
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {ingredientes?.length || 0} ingredientes · {stockBajo} con stock bajo · Valor total: ${valorTotal.toLocaleString('es-CL')}
+              </p>
             </div>
           </div>
-
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="text-left sm:text-right hidden sm:block">
+              <p className="text-xs text-muted-foreground">Inventario</p>
+              <p className="text-sm font-bold text-primary">${valorTotal.toLocaleString('es-CL')}</p>
+            </div>
+            <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto min-h-[44px]">
+              <Plus className="w-4 h-4 mr-2" />
+              Nuevo Ingrediente
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Search */}
         <div className="mb-6">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Buscar ingredientes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 min-h-[44px]"
             />
           </div>
         </div>
 
         {/* Stock Alerts */}
         {stockBajo > 0 && (
-          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-orange-600" />
+          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-orange-600 shrink-0" />
             <p className="text-sm text-orange-700">
               <strong>{stockBajo} ingredientes</strong> tienen stock bajo o están agotados
             </p>
@@ -274,9 +269,107 @@ const AdminIngredientes = () => {
           </div>
         )}
 
-        {/* Ingredientes Table */}
+        {/* Mobile: Cards */}
         {!isLoading && filteredIngredientes && (
-          <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+          <div className="block md:hidden space-y-4">
+            {filteredIngredientes.length === 0 ? (
+              <div className="bg-card rounded-xl border shadow-sm py-16 text-center text-muted-foreground">
+                No se encontraron ingredientes
+              </div>
+            ) : (
+              filteredIngredientes.map((ingrediente) => {
+                const isBajo = ingrediente.stock_actual <= ingrediente.stock_minimo
+                const sinStock = ingrediente.stock_actual === 0
+                const costoTotal = ingrediente.stock_actual * (ingrediente.costo_unitario || 0)
+                return (
+                  <div key={ingrediente.id} className="bg-card rounded-xl border shadow-sm overflow-hidden p-4 flex flex-col gap-4">
+                    <div className="flex gap-4">
+                      {ingrediente.imagen_url ? (
+                        <img src={ingrediente.imagen_url} alt={ingrediente.nombre} className="w-20 h-20 object-cover rounded-xl shrink-0" />
+                      ) : (
+                        <div className="w-20 h-20 bg-gray-100 rounded-xl shrink-0 flex items-center justify-center">
+                          <span className="text-3xl">🌿</span>
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-foreground text-base leading-snug line-clamp-2 break-words">{ingrediente.nombre}</p>
+                        {ingrediente.beneficio && (
+                          <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">{ingrediente.beneficio}</p>
+                        )}
+                        <Badge variant="outline" className="mt-2 text-xs">{ingrediente.unidad_medida}</Badge>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Stock actual</p>
+                        <p className={`font-semibold tabular-nums ${sinStock ? 'text-red-600' : isBajo ? 'text-orange-600' : ''}`}>
+                          {ingrediente.stock_actual} {ingrediente.unidad_medida}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Stock mín.</p>
+                        <p className="text-muted-foreground tabular-nums">{ingrediente.stock_minimo} {ingrediente.unidad_medida}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Costo total</p>
+                        <p className="font-semibold text-primary tabular-nums">${costoTotal.toLocaleString('es-CL')}</p>
+                      </div>
+                      <div>
+                        {sinStock ? (
+                          <Badge variant="destructive" className="text-xs">Sin Stock</Badge>
+                        ) : isBajo ? (
+                          <Badge className="bg-orange-500 text-white text-xs">Bajo</Badge>
+                        ) : (
+                          <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">OK</Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 pt-2 border-t">
+                      <Button variant="outline" size="sm" onClick={() => handleOpenDialog(ingrediente)} className="flex-1 min-h-[44px]">
+                        <Edit className="w-4 h-4 mr-2" /> Editar
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleOpenCompraDialog(ingrediente)} className="min-h-[44px] shrink-0" title="Registrar compra">
+                        <ShoppingCart className="w-4 h-4 mr-2" /> Comprar
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px] px-3">
+                            <MoreVertical className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {ingrediente.activo ? (
+                            <DropdownMenuItem onClick={() => toggleIngredienteActivo.mutate({ id: ingrediente.id, activo: false })}>
+                              <EyeOff className="w-4 h-4 mr-2" /> Desactivar
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem onClick={() => toggleIngredienteActivo.mutate({ id: ingrediente.id, activo: true })}>
+                              <Eye className="w-4 h-4 mr-2" /> Activar
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => setDeletePermanentlyId(ingrediente.id)} className="text-destructive focus:text-destructive">
+                            <Trash2 className="w-4 h-4 mr-2" /> Eliminar permanentemente
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                )
+              })
+            )}
+            {filteredIngredientes.length > 0 && (
+              <div className="bg-muted/50 rounded-xl border p-4">
+                <p className="text-sm font-semibold text-muted-foreground mb-1">Valor total del inventario</p>
+                <p className="text-xl font-bold text-primary">${valorTotal.toLocaleString('es-CL')}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Desktop: Table */}
+        {!isLoading && filteredIngredientes && (
+          <div className="hidden md:block bg-card rounded-xl border shadow-sm overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -299,51 +392,40 @@ const AdminIngredientes = () => {
                   </TableRow>
                 ) : (
                   filteredIngredientes.map((ingrediente) => {
-                    const stockBajo = ingrediente.stock_actual <= ingrediente.stock_minimo
+                    const isBajo = ingrediente.stock_actual <= ingrediente.stock_minimo
                     const sinStock = ingrediente.stock_actual === 0
-
                     return (
                       <TableRow key={ingrediente.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
                             {ingrediente.imagen_url && (
-                              <img
-                                src={ingrediente.imagen_url}
-                                alt={ingrediente.nombre}
-                                className="w-10 h-10 object-cover rounded-lg"
-                              />
+                              <img src={ingrediente.imagen_url} alt={ingrediente.nombre} className="w-10 h-10 object-cover rounded-lg" />
                             )}
                             <div>
                               <p className="font-medium">{ingrediente.nombre}</p>
                               {ingrediente.beneficio && (
-                                <p className="text-xs text-muted-foreground line-clamp-1">
-                                  {ingrediente.beneficio}
-                                </p>
+                                <p className="text-xs text-muted-foreground line-clamp-1">{ingrediente.beneficio}</p>
                               )}
                             </div>
                           </div>
                         </TableCell>
+                        <TableCell><Badge variant="outline">{ingrediente.unidad_medida}</Badge></TableCell>
                         <TableCell>
-                          <Badge variant="outline">{ingrediente.unidad_medida}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <span className={sinStock ? 'text-red-600 font-bold' : stockBajo ? 'text-orange-600 font-semibold' : ''}>
-                            {ingrediente.stock_actual}
+                          <span className={sinStock ? 'text-red-600 font-bold' : isBajo ? 'text-orange-600 font-semibold' : ''}>
+                            {ingrediente.stock_actual} {ingrediente.unidad_medida}
                           </span>
                         </TableCell>
-                        <TableCell>{ingrediente.stock_minimo}</TableCell>
-                        <TableCell>
-                          ${(ingrediente.costo_unitario || 0).toLocaleString('es-CL')}
-                        </TableCell>
+                        <TableCell>{ingrediente.stock_minimo} {ingrediente.unidad_medida}</TableCell>
+                        <TableCell>${(ingrediente.costo_unitario || 0).toLocaleString('es-CL')}</TableCell>
                         <TableCell>
                           <span className="font-semibold text-primary">
-                            ${((ingrediente.stock_actual * (ingrediente.costo_unitario || 0))).toLocaleString('es-CL')}
+                            ${(ingrediente.stock_actual * (ingrediente.costo_unitario || 0)).toLocaleString('es-CL')}
                           </span>
                         </TableCell>
                         <TableCell>
                           {sinStock ? (
                             <Badge variant="destructive">Sin Stock</Badge>
-                          ) : stockBajo ? (
+                          ) : isBajo ? (
                             <Badge className="bg-orange-500">Stock Bajo</Badge>
                           ) : (
                             <Badge variant="secondary" className="bg-green-100 text-green-700">OK</Badge>
@@ -351,39 +433,29 @@ const AdminIngredientes = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleOpenDialog(ingrediente)}
-                              title="Editar ingrediente"
-                            >
+                            <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(ingrediente)} title="Editar ingrediente">
                               <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleOpenCompraDialog(ingrediente)} title="Registrar compra">
+                              <ShoppingCart className="w-4 h-4" />
                             </Button>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <MoreVertical className="w-4 h-4" />
-                                </Button>
+                                <Button variant="ghost" size="sm"><MoreVertical className="w-4 h-4" /></Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 {ingrediente.activo ? (
                                   <DropdownMenuItem onClick={() => toggleIngredienteActivo.mutate({ id: ingrediente.id, activo: false })}>
-                                    <EyeOff className="w-4 h-4 mr-2" />
-                                    Desactivar
+                                    <EyeOff className="w-4 h-4 mr-2" /> Desactivar
                                   </DropdownMenuItem>
                                 ) : (
                                   <DropdownMenuItem onClick={() => toggleIngredienteActivo.mutate({ id: ingrediente.id, activo: true })}>
-                                    <Eye className="w-4 h-4 mr-2" />
-                                    Activar
+                                    <Eye className="w-4 h-4 mr-2" /> Activar
                                   </DropdownMenuItem>
                                 )}
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem 
-                                  onClick={() => setDeletePermanentlyId(ingrediente.id)}
-                                  className="text-destructive focus:text-destructive"
-                                >
-                                  <Trash2 className="w-4 h-4 mr-2" />
-                                  Eliminar Permanentemente
+                                <DropdownMenuItem onClick={() => setDeletePermanentlyId(ingrediente.id)} className="text-destructive focus:text-destructive">
+                                  <Trash2 className="w-4 h-4 mr-2" /> Eliminar Permanentemente
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -393,20 +465,12 @@ const AdminIngredientes = () => {
                     )
                   })
                 )}
-                
-                {/* Fila de Totales */}
                 {filteredIngredientes.length > 0 && (
                   <TableRow className="bg-muted/50 font-semibold border-t-2">
-                    <TableCell colSpan={4} className="text-right">
-                      VALOR TOTAL DEL INVENTARIO:
-                    </TableCell>
+                    <TableCell colSpan={4} className="text-right">VALOR TOTAL DEL INVENTARIO:</TableCell>
                     <TableCell>-</TableCell>
                     <TableCell>
-                      <span className="text-lg font-bold text-primary">
-                        ${filteredIngredientes.reduce((sum, ing) => 
-                          sum + (ing.stock_actual * (ing.costo_unitario || 0)), 0
-                        ).toLocaleString('es-CL')}
-                      </span>
+                      <span className="text-lg font-bold text-primary">${valorTotal.toLocaleString('es-CL')}</span>
                     </TableCell>
                     <TableCell colSpan={2}></TableCell>
                   </TableRow>

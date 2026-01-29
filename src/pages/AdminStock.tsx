@@ -25,37 +25,35 @@ const AdminStock = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
-              </Button>
-              <div>
-                <h1 className="font-display text-xl font-semibold text-foreground">
-                  Manejo de Stock
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  Producción y stock de ingredientes
-                </p>
-              </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="shrink-0 -ml-2">
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Volver</span>
+            </Button>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg sm:text-xl font-semibold text-foreground">
+                Manejo de Stock
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                Producción y stock de ingredientes
+              </p>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
-            <TabsTrigger value="produccion" className="flex items-center gap-2">
-              <Factory className="w-4 h-4" />
-              Producción
+          <TabsList className="grid w-full grid-cols-2 mb-6 h-11 sm:h-10">
+            <TabsTrigger value="produccion" className="flex items-center gap-2 min-h-[44px] sm:min-h-0 text-sm">
+              <Factory className="w-4 h-4 shrink-0" />
+              <span className="truncate">Producción</span>
             </TabsTrigger>
-            <TabsTrigger value="ingredientes" className="flex items-center gap-2">
-              <Warehouse className="w-4 h-4" />
-              Stock de Ingredientes
+            <TabsTrigger value="ingredientes" className="flex items-center gap-2 min-h-[44px] sm:min-h-0 text-sm">
+              <Warehouse className="w-4 h-4 shrink-0" />
+              <span className="truncate">Stock Ingredientes</span>
             </TabsTrigger>
           </TabsList>
 

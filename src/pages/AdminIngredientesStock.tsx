@@ -106,41 +106,43 @@ const AdminIngredientesStock = () => {
     }
   }
 
+  const ingredientesActivos = filteredIngredientes?.filter(ing => ing.activo) ?? []
+
   return (
     <div className="space-y-6">
       {/* Header Info */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Gestión de Ingredientes</h2>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 className="text-xl sm:text-2xl font-bold">Gestión de Ingredientes</h2>
           <p className="text-sm text-muted-foreground mt-1">
             {ingredientes?.length || 0} ingredientes • {ingredientesStockBajo} con stock bajo • Valor total: ${valorTotalInventario.toLocaleString('es-CL')}
           </p>
         </div>
-        <div className="text-right">
+        <div className="text-left sm:text-right shrink-0">
           <p className="text-sm text-muted-foreground">Inventario</p>
-          <p className="text-2xl font-bold text-green-600">
+          <p className="text-xl sm:text-2xl font-bold text-green-600">
             ${valorTotalInventario.toLocaleString('es-CL')}
           </p>
         </div>
       </div>
 
       {/* Alert Info */}
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          Usa el botón 🛒 en cada fila para registrar compras y actualizar stock
+      <Alert className="rounded-xl">
+        <Info className="h-4 w-4 shrink-0" />
+        <AlertDescription className="text-sm">
+          Usa el botón 🛒 en cada tarjeta/fila para registrar compras y actualizar stock
         </AlertDescription>
       </Alert>
 
       {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <div className="relative w-full max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           type="text"
           placeholder="Buscar ingredientes..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
+          className="pl-10 min-h-[44px]"
         />
       </div>
 
@@ -151,9 +153,105 @@ const AdminIngredientesStock = () => {
         </div>
       )}
 
-      {/* Ingredients Table */}
+      {/* Mobile: Cards */}
       {!isLoading && filteredIngredientes && (
-        <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+        <div className="block md:hidden space-y-4">
+          {ingredientesActivos.length === 0 ? (
+            <div className="bg-card rounded-xl border shadow-sm py-16 text-center text-muted-foreground">
+              No se encontraron ingredientes
+            </div>
+          ) : (
+            ingredientesActivos.map((ingrediente) => {
+              const costoTotal = ingrediente.stock_actual * (ingrediente.costo_unitario || 0)
+              const stockBajo = ingrediente.stock_actual <= ingrediente.stock_minimo
+              const sinStock = ingrediente.stock_actual === 0
+              return (
+                <div
+                  key={ingrediente.id}
+                  className="bg-card rounded-xl border shadow-sm overflow-hidden p-4 flex flex-col gap-4"
+                >
+                  <div className="flex gap-4">
+                    {ingrediente.imagen_url ? (
+                      <img
+                        src={ingrediente.imagen_url}
+                        alt={ingrediente.nombre}
+                        className="w-20 h-20 object-cover rounded-xl shrink-0"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 bg-gray-100 rounded-xl shrink-0 flex items-center justify-center">
+                        <span className="text-3xl">🌿</span>
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-foreground text-base leading-snug line-clamp-2 break-words">
+                        {ingrediente.nombre}
+                      </p>
+                      {ingrediente.descripcion && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
+                          {ingrediente.descripcion}
+                        </p>
+                      )}
+                      <Badge variant="outline" className="mt-2 text-xs">
+                        {ingrediente.unidad_medida}
+                      </Badge>
+                    </div>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => handleOpenCompraDialog(ingrediente)}
+                      title="Registrar compra y actualizar stock"
+                      className="shrink-0 min-h-[44px] min-w-[44px] p-0"
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Stock actual</p>
+                      <p className="font-semibold tabular-nums">
+                        {ingrediente.stock_actual} {ingrediente.unidad_medida}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Stock mín.</p>
+                      <p className="text-muted-foreground tabular-nums">
+                        {ingrediente.stock_minimo} {ingrediente.unidad_medida}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Costo total</p>
+                      <p className="font-semibold text-green-600 tabular-nums">
+                        ${costoTotal.toLocaleString('es-CL')}
+                      </p>
+                    </div>
+                    <div>
+                      {sinStock ? (
+                        <Badge variant="destructive" className="text-xs">Sin Stock</Badge>
+                      ) : stockBajo ? (
+                        <Badge className="bg-orange-500 text-white text-xs">Bajo</Badge>
+                      ) : (
+                        <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">OK</Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          )}
+          {ingredientesActivos.length > 0 && (
+            <div className="bg-muted/50 rounded-xl border p-4">
+              <p className="text-sm font-semibold text-muted-foreground mb-1">Valor total del inventario</p>
+              <p className="text-xl font-bold text-green-600">
+                ${valorTotalInventario.toLocaleString('es-CL')}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Desktop: Table */}
+      {!isLoading && filteredIngredientes && (
+        <div className="hidden md:block bg-card rounded-xl border shadow-sm overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -168,92 +266,72 @@ const AdminIngredientesStock = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredIngredientes.length === 0 ? (
+              {ingredientesActivos.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-10 text-muted-foreground">
                     No se encontraron ingredientes
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredIngredientes
-                  .filter(ing => ing.activo)
-                  .map((ingrediente) => {
-                    const costoTotal = ingrediente.stock_actual * (ingrediente.costo_unitario || 0)
-                    const stockBajo = ingrediente.stock_actual <= ingrediente.stock_minimo
-                    const sinStock = ingrediente.stock_actual === 0
-
-                    return (
-                      <TableRow key={ingrediente.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            {ingrediente.imagen_url ? (
-                              <img
-                                src={ingrediente.imagen_url}
-                                alt={ingrediente.nombre}
-                                className="w-12 h-12 object-cover rounded-lg"
-                              />
-                            ) : (
-                              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <span className="text-2xl">🌿</span>
-                              </div>
-                            )}
-                            <div>
-                              <p className="font-medium">{ingrediente.nombre}</p>
-                              {ingrediente.descripcion && (
-                                <p className="text-sm text-muted-foreground line-clamp-1">
-                                  {ingrediente.descripcion}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{ingrediente.unidad_medida}</Badge>
-                        </TableCell>
-                        <TableCell className="font-semibold">
-                          {ingrediente.stock_actual} {ingrediente.unidad_medida}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {ingrediente.stock_minimo} {ingrediente.unidad_medida}
-                        </TableCell>
-                        <TableCell>
-                          ${(ingrediente.costo_unitario || 0).toLocaleString('es-CL')}
-                        </TableCell>
-                        <TableCell className="font-semibold text-green-600">
-                          ${costoTotal.toLocaleString('es-CL')}
-                        </TableCell>
-                        <TableCell>
-                          {sinStock ? (
-                            <Badge variant="destructive">Sin Stock</Badge>
-                          ) : stockBajo ? (
-                            <Badge className="bg-orange-500 text-white">Bajo</Badge>
+                ingredientesActivos.map((ingrediente) => {
+                  const costoTotal = ingrediente.stock_actual * (ingrediente.costo_unitario || 0)
+                  const stockBajo = ingrediente.stock_actual <= ingrediente.stock_minimo
+                  const sinStock = ingrediente.stock_actual === 0
+                  return (
+                    <TableRow key={ingrediente.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          {ingrediente.imagen_url ? (
+                            <img src={ingrediente.imagen_url} alt={ingrediente.nombre} className="w-12 h-12 object-cover rounded-lg" />
                           ) : (
-                            <Badge variant="secondary" className="bg-green-100 text-green-700">OK</Badge>
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                              <span className="text-2xl">🌿</span>
+                            </div>
                           )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleOpenCompraDialog(ingrediente)}
-                            title="Registrar compra y actualizar stock"
-                          >
-                            <ShoppingCart className="w-4 h-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })
+                          <div>
+                            <p className="font-medium">{ingrediente.nombre}</p>
+                            {ingrediente.descripcion && (
+                              <p className="text-sm text-muted-foreground line-clamp-1">{ingrediente.descripcion}</p>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{ingrediente.unidad_medida}</Badge>
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        {ingrediente.stock_actual} {ingrediente.unidad_medida}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {ingrediente.stock_minimo} {ingrediente.unidad_medida}
+                      </TableCell>
+                      <TableCell>${(ingrediente.costo_unitario || 0).toLocaleString('es-CL')}</TableCell>
+                      <TableCell className="font-semibold text-green-600">${costoTotal.toLocaleString('es-CL')}</TableCell>
+                      <TableCell>
+                        {sinStock ? (
+                          <Badge variant="destructive">Sin Stock</Badge>
+                        ) : stockBajo ? (
+                          <Badge className="bg-orange-500 text-white">Bajo</Badge>
+                        ) : (
+                          <Badge variant="secondary" className="bg-green-100 text-green-700">OK</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" onClick={() => handleOpenCompraDialog(ingrediente)} title="Registrar compra y actualizar stock">
+                          <ShoppingCart className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
               )}
             </TableBody>
           </Table>
-
-          {/* Footer con total */}
-          {filteredIngredientes.length > 0 && (
+          {ingredientesActivos.length > 0 && (
             <div className="border-t bg-muted/50 p-4">
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-lg">VALOR TOTAL DEL INVENTARIO:</span>
-                <span className="font-bold text-2xl text-green-600">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <span className="font-bold text-base sm:text-lg">VALOR TOTAL DEL INVENTARIO:</span>
+                <span className="font-bold text-xl sm:text-2xl text-green-600">
                   ${valorTotalInventario.toLocaleString('es-CL')}
                 </span>
               </div>

@@ -129,39 +129,37 @@ const AdminCategorias = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
-              </Button>
-              <div>
-                <h1 className="font-display text-xl font-semibold text-foreground">
-                  Gestión de Categorías
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  {categorias?.length || 0} categorías configuradas
-                </p>
-              </div>
-            </div>
-            <Button onClick={() => handleOpenDialog()}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nueva Categoría
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="shrink-0 -ml-2">
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Volver</span>
             </Button>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg sm:text-xl font-semibold text-foreground">
+                Gestión de Categorías
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                {categorias?.length || 0} categorías configuradas
+              </p>
+            </div>
           </div>
+          <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto min-h-[44px] shrink-0">
+            <Plus className="w-4 h-4 mr-2" />
+            Nueva Categoría
+          </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Info Card */}
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mb-6 p-4 sm:p-4 bg-blue-50 border border-blue-200 rounded-xl">
           <div className="flex items-start gap-3">
-            <Tag className="w-5 h-5 text-blue-600 mt-0.5" />
-            <div className="text-sm text-blue-800">
+            <Tag className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+            <div className="min-w-0 text-sm text-blue-800">
               <p className="font-semibold mb-1">💡 Sobre las Categorías</p>
-              <p>Las categorías organizan tus productos en el catálogo. La categoría "Todos" es especial y muestra todos los productos.</p>
+              <p>Las categorías organizan tus productos en el catálogo. La categoría &quot;Todos&quot; es especial y muestra todos los productos.</p>
             </div>
           </div>
         </div>
@@ -173,9 +171,90 @@ const AdminCategorias = () => {
           </div>
         )}
 
-        {/* Categorias Table */}
+        {/* Mobile: Cards */}
         {!isLoading && categorias && (
-          <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+          <div className="block md:hidden space-y-4">
+            {categorias.length === 0 ? (
+              <div className="bg-card rounded-xl border shadow-sm py-16 text-center text-muted-foreground">
+                No hay categorías configuradas
+              </div>
+            ) : (
+              categorias.map((categoria) => (
+                <div
+                  key={categoria.id}
+                  className="bg-card rounded-xl border shadow-sm overflow-hidden p-4 flex flex-col gap-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="outline" className="shrink-0">{categoria.orden}</Badge>
+                        <p className="font-semibold text-foreground text-base">{categoria.nombre}</p>
+                      </div>
+                      <code className="inline-block text-xs bg-muted px-2 py-1 rounded mt-2">
+                        {categoria.slug}
+                      </code>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {categoria.activo ? (
+                        <span className="flex items-center gap-1 text-green-600 text-sm">
+                          <Eye className="w-4 h-4" /> Activo
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-muted-foreground text-sm">
+                          <EyeOff className="w-4 h-4" /> Inactivo
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-2 break-words">
+                    {categoria.descripcion || '—'}
+                  </p>
+                  <div className="flex gap-2 pt-2 border-t">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenDialog(categoria)}
+                      className="flex-1 min-h-[44px]"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px] px-3">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {categoria.activo ? (
+                          <DropdownMenuItem onClick={() => toggleCategoriaActivo.mutate({ id: categoria.id, activo: false })}>
+                            <EyeOff className="w-4 h-4 mr-2" /> Desactivar
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem onClick={() => toggleCategoriaActivo.mutate({ id: categoria.id, activo: true })}>
+                            <Eye className="w-4 h-4 mr-2" /> Activar
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => setDeleteId(categoria.id)}
+                          className="text-destructive focus:text-destructive"
+                          disabled={categoria.slug === 'all'}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" /> Eliminar permanentemente
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Desktop: Table */}
+        {!isLoading && categorias && (
+          <div className="hidden md:block bg-card rounded-xl border shadow-sm overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -204,12 +283,10 @@ const AdminCategorias = () => {
                         <p className="font-medium">{categoria.nombre}</p>
                       </TableCell>
                       <TableCell>
-                        <code className="text-xs bg-muted px-2 py-1 rounded">
-                          {categoria.slug}
-                        </code>
+                        <code className="text-xs bg-muted px-2 py-1 rounded">{categoria.slug}</code>
                       </TableCell>
                       <TableCell>
-                        <p className="text-sm text-muted-foreground line-clamp-1 max-w-xs">
+                        <p className="text-sm text-muted-foreground max-w-xs line-clamp-1">
                           {categoria.descripcion || '-'}
                         </p>
                       </TableCell>
@@ -228,11 +305,7 @@ const AdminCategorias = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleOpenDialog(categoria)}
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(categoria)}>
                             <Edit className="w-4 h-4" />
                           </Button>
                           <DropdownMenu>
@@ -244,23 +317,20 @@ const AdminCategorias = () => {
                             <DropdownMenuContent align="end">
                               {categoria.activo ? (
                                 <DropdownMenuItem onClick={() => toggleCategoriaActivo.mutate({ id: categoria.id, activo: false })}>
-                                  <EyeOff className="w-4 h-4 mr-2" />
-                                  Desactivar
+                                  <EyeOff className="w-4 h-4 mr-2" /> Desactivar
                                 </DropdownMenuItem>
                               ) : (
                                 <DropdownMenuItem onClick={() => toggleCategoriaActivo.mutate({ id: categoria.id, activo: true })}>
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  Activar
+                                  <Eye className="w-4 h-4 mr-2" /> Activar
                                 </DropdownMenuItem>
                               )}
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 onClick={() => setDeleteId(categoria.id)}
                                 className="text-destructive focus:text-destructive"
                                 disabled={categoria.slug === 'all'}
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Eliminar Permanentemente
+                                <Trash2 className="w-4 h-4 mr-2" /> Eliminar Permanentemente
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
