@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Chewy", "Nunito", "cursive"],
-        body: ["Chewy", "Nunito", "cursive"],
+        display: ["Baloo 2", "Nunito", "sans-serif"],
+        body: ["Baloo 2", "Nunito", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
