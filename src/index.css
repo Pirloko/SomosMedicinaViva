@@ -1,4 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+/* New Sun Playful: coloca el archivo .woff2 o .woff en public/fonts/ (ej: NewSunPlayful.woff2) */
+@font-face {
+  font-family: 'New Sun Playful';
+  src: url('/fonts/NewSunPlayful.woff2') format('woff2'),
+       url('/fonts/NewSunPlayful.woff') format('woff'),
+       url('/fonts/NewSunPlayful.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -114,7 +125,8 @@
   }
   
   body {
-    @apply text-foreground font-body antialiased;
+    @apply text-foreground antialiased;
+    font-family: 'New Sun Playful', 'Nunito', cursive, sans-serif;
     position: relative;
     min-height: 100vh;
   }
@@ -146,7 +158,7 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    font-family: 'New Sun Playful', 'Nunito', cursive, sans-serif;
   }
 }
 

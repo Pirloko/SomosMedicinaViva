@@ -32,7 +32,7 @@ const Navbar = () => {
               className="w-12 h-12 md:w-14 md:h-14 object-contain transition-transform group-hover:scale-105"
             />
             <span className="font-display text-xl font-semibold text-foreground">
-              Medicina Viva
+              Somos Medicina Viva
             </span>
           </a>
 

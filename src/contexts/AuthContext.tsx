@@ -14,8 +14,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-/** Único usuario administrador. Solo este email tiene rol admin. */
-const ADMIN_EMAIL = 'smv.informaciones@gmail.com'
+/** Emails con rol administrador. Solo estos tienen acceso admin. */
+const ADMIN_EMAILS = ['smv.informaciones@gmail.com', 'admin@gmail.com']
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
@@ -25,9 +25,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast()
   const fetchingRoleRef = useRef<Set<string>>(new Set()) // Para evitar llamadas duplicadas
 
-  const isAdminEmail = (email: string | undefined) => email?.toLowerCase() === ADMIN_EMAIL
+  const isAdminEmail = (email: string | undefined) =>
+    email ? ADMIN_EMAILS.includes(email.toLowerCase()) : false
 
-  // Función para obtener el rol del usuario (nunca devuelve admin salvo para ADMIN_EMAIL)
+  // Función para obtener el rol del usuario (admin solo para emails en ADMIN_EMAILS)
   const fetchUserRole = async (userId: string, userEmail?: string): Promise<'admin' | 'vendedor'> => {
     if (userEmail && isAdminEmail(userEmail)) {
       setRole('admin')
@@ -188,7 +189,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(data.session)
       setUser(data.user)
       
-      // ÚNICO ADMIN: smv.informaciones@gmail.com. El resto es vendedor.
+      // Admins: smv.informaciones@gmail.com y admin@gmail.com. El resto según BD.
       let userRole: 'admin' | 'vendedor'
       if (data.user && isAdminEmail(data.user.email)) {
         setRole('admin')

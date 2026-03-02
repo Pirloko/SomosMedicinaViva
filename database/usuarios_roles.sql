@@ -2,7 +2,7 @@
 -- MEDICINA VIVA BAKERY - SISTEMA DE ROLES
 -- ============================================
 -- Tabla para gestionar roles de usuarios (Admin y Vendedor)
--- ÚNICO ADMINISTRADOR: smv.informaciones@gmail.com
+-- Administradores: smv.informaciones@gmail.com y admin@gmail.com
 -- El resto de usuarios son vendedores.
 -- ============================================
 
@@ -36,8 +36,8 @@ COMMENT ON COLUMN usuarios_roles.activo IS 'Indica si el usuario está activo';
 -- ============================================
 -- 2. FUNCIÓN: OBTENER ROL DEL USUARIO
 -- ============================================
--- Único administrador: smv.informaciones@gmail.com
--- El resto de usuarios obtienen su rol de la tabla o vendedor por defecto.
+-- Administradores: smv.informaciones@gmail.com y admin@gmail.com
+-- El resto obtienen su rol de la tabla o vendedor por defecto.
 
 CREATE OR REPLACE FUNCTION obtener_rol_usuario(p_user_id UUID)
 RETURNS TEXT AS $$
@@ -45,12 +45,10 @@ DECLARE
   v_email TEXT;
   v_rol TEXT;
 BEGIN
-  -- Único admin: solo smv.informaciones@gmail.com
   SELECT email INTO v_email FROM auth.users WHERE id = p_user_id;
-  IF v_email = 'smv.informaciones@gmail.com' THEN
+  IF v_email IN ('smv.informaciones@gmail.com', 'admin@gmail.com') THEN
     RETURN 'admin';
   END IF;
-  -- Resto: rol desde tabla o vendedor por defecto
   SELECT rol INTO v_rol
   FROM usuarios_roles
   WHERE user_id = p_user_id AND activo = true;
@@ -83,11 +81,11 @@ BEGIN
     RAISE EXCEPTION 'Rol inválido. Debe ser admin o vendedor';
   END IF;
 
-  -- Solo smv.informaciones@gmail.com puede tener rol admin
+  -- Solo los emails autorizados pueden tener rol admin
   IF p_rol = 'admin' THEN
     SELECT email INTO v_email FROM auth.users WHERE id = p_user_id;
-    IF v_email IS NULL OR v_email <> 'smv.informaciones@gmail.com' THEN
-      RAISE EXCEPTION 'Solo el usuario smv.informaciones@gmail.com puede ser administrador';
+    IF v_email IS NULL OR v_email NOT IN ('smv.informaciones@gmail.com', 'admin@gmail.com') THEN
+      RAISE EXCEPTION 'Solo los usuarios smv.informaciones@gmail.com y admin@gmail.com pueden ser administradores';
     END IF;
   END IF;
 
@@ -118,7 +116,7 @@ GRANT EXECUTE ON FUNCTION asignar_rol_usuario(UUID, TEXT, TEXT, UUID) TO authent
 -- ============================================
 -- 4. FUNCIÓN: VERIFICAR SI ES ADMIN (sin recursión)
 -- ============================================
--- Único admin: smv.informaciones@gmail.com
+-- Admins: smv.informaciones@gmail.com y admin@gmail.com
 
 CREATE OR REPLACE FUNCTION es_admin_usuario(p_user_id UUID)
 RETURNS BOOLEAN AS $$
@@ -126,7 +124,7 @@ DECLARE
   v_email TEXT;
 BEGIN
   SELECT email INTO v_email FROM auth.users WHERE id = p_user_id;
-  RETURN (v_email = 'smv.informaciones@gmail.com');
+  RETURN (v_email IN ('smv.informaciones@gmail.com', 'admin@gmail.com'));
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

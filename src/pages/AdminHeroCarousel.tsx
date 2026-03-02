@@ -1,11 +1,26 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAllHeroImagenes, useToggleHeroImagenActivo, useDeleteHeroImagen, useCreateHeroImagen, useUpdateHeroImagen } from '@/hooks/useHeroImagenes'
+import { useHeroEtiquetas, useUpdateHeroEtiquetas, getDefaultHeroEtiquetas } from '@/hooks/useHeroEtiquetas'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import ImageUpload from '@/components/ImageUpload'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -38,18 +53,42 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { ArrowLeft, Plus, Edit, Trash2, Loader2, Eye, EyeOff, MoreVertical, AlertTriangle, Image as ImageIcon } from 'lucide-react'
+import { ArrowLeft, Plus, Edit, Trash2, Loader2, Eye, EyeOff, MoreVertical, AlertTriangle, Image as ImageIcon, Tag } from 'lucide-react'
 import { Database } from '@/types/database.types'
 
 type HeroImagen = Database['public']['Tables']['hero_imagenes']['Row']
 
+const ICON_OPTIONS = [
+  { value: 'Heart', label: 'Corazón (Apto diabéticos)' },
+  { value: 'Leaf', label: 'Hoja (Vegano)' },
+  { value: 'Sparkles', label: 'Brillos (Sin gluten)' },
+  { value: 'CheckCircle2', label: 'Check' },
+  { value: 'Star', label: 'Estrella' },
+]
+
 const AdminHeroCarousel = () => {
   const navigate = useNavigate()
   const { data: imagenes, isLoading } = useAllHeroImagenes()
+  const { data: heroEtiquetas, isLoading: loadingEtiquetas } = useHeroEtiquetas()
+  const updateHeroEtiquetas = useUpdateHeroEtiquetas()
   const toggleImagenActivo = useToggleHeroImagenActivo()
   const deleteImagen = useDeleteHeroImagen()
   const createImagen = useCreateHeroImagen()
   const updateImagen = useUpdateHeroImagen()
+  
+  const defaultsEtiquetas = getDefaultHeroEtiquetas()
+  const [etiquetasForm, setEtiquetasForm] = useState({
+    floating_1_label: defaultsEtiquetas.floating_1_label,
+    floating_1_value: defaultsEtiquetas.floating_1_value,
+    floating_2_label: defaultsEtiquetas.floating_2_label,
+    floating_2_value: defaultsEtiquetas.floating_2_value,
+    feature_1_icon: defaultsEtiquetas.feature_1_icon,
+    feature_1_text: defaultsEtiquetas.feature_1_text,
+    feature_2_icon: defaultsEtiquetas.feature_2_icon,
+    feature_2_text: defaultsEtiquetas.feature_2_text,
+    feature_3_icon: defaultsEtiquetas.feature_3_icon,
+    feature_3_text: defaultsEtiquetas.feature_3_text,
+  })
   
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [editingImagen, setEditingImagen] = useState<HeroImagen | null>(null)
@@ -63,6 +102,32 @@ const AdminHeroCarousel = () => {
   })
 
   const imagenesActivas = imagenes?.filter(img => img.activo).length || 0
+
+  useEffect(() => {
+    if (heroEtiquetas) {
+      setEtiquetasForm({
+        floating_1_label: heroEtiquetas.floating_1_label ?? defaultsEtiquetas.floating_1_label,
+        floating_1_value: heroEtiquetas.floating_1_value ?? defaultsEtiquetas.floating_1_value,
+        floating_2_label: heroEtiquetas.floating_2_label ?? defaultsEtiquetas.floating_2_label,
+        floating_2_value: heroEtiquetas.floating_2_value ?? defaultsEtiquetas.floating_2_value,
+        feature_1_icon: heroEtiquetas.feature_1_icon ?? defaultsEtiquetas.feature_1_icon,
+        feature_1_text: heroEtiquetas.feature_1_text ?? defaultsEtiquetas.feature_1_text,
+        feature_2_icon: heroEtiquetas.feature_2_icon ?? defaultsEtiquetas.feature_2_icon,
+        feature_2_text: heroEtiquetas.feature_2_text ?? defaultsEtiquetas.feature_2_text,
+        feature_3_icon: heroEtiquetas.feature_3_icon ?? defaultsEtiquetas.feature_3_icon,
+        feature_3_text: heroEtiquetas.feature_3_text ?? defaultsEtiquetas.feature_3_text,
+      })
+    }
+  }, [heroEtiquetas])
+
+  const handleSaveEtiquetas = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!heroEtiquetas?.id) return
+    await updateHeroEtiquetas.mutateAsync({
+      id: heroEtiquetas.id,
+      updates: etiquetasForm,
+    })
+  }
 
   const handleOpenDialog = (imagen?: HeroImagen) => {
     if (imagen) {
@@ -139,6 +204,111 @@ const AdminHeroCarousel = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Etiquetas del banner (floating badges + pills) */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Tag className="w-5 h-5 text-primary" />
+              Etiquetas del banner
+            </CardTitle>
+            <CardDescription>
+              Textos que aparecen junto a la foto de portada: las 2 tarjetas flotantes y las 3 pills debajo del título.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadingEtiquetas ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <form onSubmit={handleSaveEtiquetas} className="space-y-6">
+                <div>
+                  <h4 className="text-sm font-semibold text-foreground mb-3">Tarjetas flotantes (sobre la imagen)</h4>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Etiqueta 1 - Título</Label>
+                      <Input
+                        value={etiquetasForm.floating_1_label}
+                        onChange={(e) => setEtiquetasForm((f) => ({ ...f, floating_1_label: e.target.value }))}
+                        placeholder="Sin Azúcar"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Etiqueta 1 - Valor</Label>
+                      <Input
+                        value={etiquetasForm.floating_1_value}
+                        onChange={(e) => setEtiquetasForm((f) => ({ ...f, floating_1_value: e.target.value }))}
+                        placeholder="100%"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Etiqueta 2 - Título</Label>
+                      <Input
+                        value={etiquetasForm.floating_2_label}
+                        onChange={(e) => setEtiquetasForm((f) => ({ ...f, floating_2_label: e.target.value }))}
+                        placeholder="Vegano"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Etiqueta 2 - Valor</Label>
+                      <Input
+                        value={etiquetasForm.floating_2_value}
+                        onChange={(e) => setEtiquetasForm((f) => ({ ...f, floating_2_value: e.target.value }))}
+                        placeholder="🌱"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-foreground mb-3">Pills debajo del título</h4>
+                  <div className="space-y-4">
+                    {([1, 2, 3] as const).map((i) => (
+                      <div key={i} className="flex flex-col sm:flex-row gap-3 sm:items-end">
+                        <div className="flex-1 space-y-2 min-w-0">
+                          <Label>Pill {i} - Icono</Label>
+                          <Select
+                            value={etiquetasForm[`feature_${i}_icon`]}
+                            onValueChange={(v) => setEtiquetasForm((f) => ({ ...f, [`feature_${i}_icon`]: v }))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Elegir icono" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {ICON_OPTIONS.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex-[2] space-y-2 min-w-0">
+                          <Label>Pill {i} - Texto</Label>
+                          <Input
+                            value={etiquetasForm[`feature_${i}_text`]}
+                            onChange={(e) => setEtiquetasForm((f) => ({ ...f, [`feature_${i}_text`]: e.target.value }))}
+                            placeholder={i === 1 ? 'Apto diabéticos' : i === 2 ? 'Vegano' : 'Sin gluten'}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <Button type="submit" disabled={updateHeroEtiquetas.isPending || !heroEtiquetas?.id}>
+                  {updateHeroEtiquetas.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Guardando…
+                    </>
+                  ) : (
+                    'Guardar etiquetas'
+                  )}
+                </Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Info Card */}
         <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-xl">
           <div className="flex items-start gap-3">

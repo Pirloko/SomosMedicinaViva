@@ -112,11 +112,12 @@ const AdminProductoForm = () => {
 
   const onSubmit = async (data: ProductFormData) => {
     try {
-      // Convertir tags de string a array
+      // Convertir tags de string a array (máximo 5 etiquetas)
       const tagsArray = data.tags
         .split(',')
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0)
+        .slice(0, 5)
 
       const productData = {
         nombre: data.nombre,
@@ -334,15 +335,23 @@ const AdminProductoForm = () => {
 
                 {/* Tags */}
                 <div className="space-y-2">
-                  <Label htmlFor="tags">Etiquetas</Label>
+                  <Label htmlFor="tags">Etiquetas (máximo 5)</Label>
                   <Input
                     id="tags"
-                    {...register('tags')}
-                    placeholder="Sin Azúcar, Sin Gluten, Vegano"
+                    {...register('tags', {
+                      validate: (value) => {
+                        const count = value.split(',').map((t) => t.trim()).filter(Boolean).length
+                        return count <= 5 || 'Máximo 5 etiquetas'
+                      },
+                    })}
+                    placeholder="Sin Gluten, Sin Azúcar, Sin Lácteos, Vegano, Apto diabéticos"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Separa las etiquetas con comas
+                    Separa las etiquetas con comas. Se guardan como máximo 5 y se muestran todas en la ficha del producto.
                   </p>
+                  {errors.tags && (
+                    <p className="text-sm text-destructive">{errors.tags.message}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>

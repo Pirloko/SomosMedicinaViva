@@ -1,9 +1,14 @@
 import { MapPin, Clock, Truck, Loader2, AlertCircle } from "lucide-react";
 import { useZonasDelivery } from '@/hooks/useZonasDelivery'
+import { useDeliveryInfo, getDefaultDeliveryInfo } from '@/hooks/useDeliveryInfo'
 
 const Delivery = () => {
-  // 🔥 Obtener zonas desde Supabase
   const { data: zones, isLoading, error } = useZonasDelivery()
+  const { data: deliveryInfo } = useDeliveryInfo()
+  const defaults = getDefaultDeliveryInfo()
+  const horarios = deliveryInfo?.horarios_entrega ?? defaults.horarios_entrega
+  const costoTexto = deliveryInfo?.costo_envio_texto ?? defaults.costo_envio_texto
+  const retiroTexto = deliveryInfo?.punto_retiro_texto ?? defaults.punto_retiro_texto
 
   return (
     <section id="delivery" className="section-padding bg-background">
@@ -31,10 +36,7 @@ const Delivery = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground mb-1">Horarios de Entrega</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Lunes a Viernes: 10:00 - 19:00 hrs<br />
-                    Sábados: 10:00 - 14:00 hrs
-                  </p>
+                  <p className="text-muted-foreground text-sm whitespace-pre-line">{horarios}</p>
                 </div>
               </div>
 
@@ -44,10 +46,7 @@ const Delivery = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground mb-1">Costo de Envío</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Desde $3.990 según zona<br />
-                    Envío gratis en compras sobre $40.000
-                  </p>
+                  <p className="text-muted-foreground text-sm whitespace-pre-line">{costoTexto}</p>
                 </div>
               </div>
 
@@ -57,10 +56,7 @@ const Delivery = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground mb-1">Punto de Retiro</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Disponible retiro sin costo<br />
-                    Coordinar horario por WhatsApp
-                  </p>
+                  <p className="text-muted-foreground text-sm whitespace-pre-line">{retiroTexto}</p>
                 </div>
               </div>
             </div>

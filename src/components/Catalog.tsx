@@ -104,7 +104,7 @@ const Catalog = () => {
                 <div className="p-5">
                   {/* Tags */}
                   <div className="flex flex-wrap gap-1.5 mb-3">
-                    {product.tags && product.tags.slice(0, 3).map((tag) => (
+                    {product.tags && product.tags.map((tag) => (
                       <Badge
                         key={tag}
                         variant="secondary"

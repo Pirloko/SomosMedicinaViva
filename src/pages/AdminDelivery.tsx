@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAllZonasDelivery, useDeleteZonaDelivery, useDeleteZonaDeliveryPermanentemente, useCreateZonaDelivery, useUpdateZonaDelivery } from '@/hooks/useZonasDelivery'
+import { useDeliveryInfo, useUpdateDeliveryInfo, getDefaultDeliveryInfo } from '@/hooks/useDeliveryInfo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Table,
   TableBody,
@@ -13,6 +15,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -37,7 +46,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { ArrowLeft, Plus, Edit, Trash2, Search, Loader2, Truck, Eye, EyeOff, MoreVertical, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Plus, Edit, Trash2, Search, Loader2, Truck, Eye, EyeOff, MoreVertical, AlertTriangle, Clock, MapPin } from 'lucide-react'
 import { Database } from '@/types/database.types'
 
 type ZonaDelivery = Database['public']['Tables']['zonas_delivery']['Row']
@@ -45,6 +54,8 @@ type ZonaDelivery = Database['public']['Tables']['zonas_delivery']['Row']
 const AdminDelivery = () => {
   const navigate = useNavigate()
   const { data: zonas, isLoading } = useAllZonasDelivery()
+  const { data: deliveryInfo, isLoading: loadingInfo } = useDeliveryInfo()
+  const updateDeliveryInfo = useUpdateDeliveryInfo()
   const deleteZona = useDeleteZonaDelivery()
   const deleteZonaPermanentemente = useDeleteZonaDeliveryPermanentemente()
   const createZona = useCreateZonaDelivery()
@@ -55,6 +66,13 @@ const AdminDelivery = () => {
   const [deletePermanentlyId, setDeletePermanentlyId] = useState<string | null>(null)
   const [editingZona, setEditingZona] = useState<ZonaDelivery | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  
+  const defaults = getDefaultDeliveryInfo()
+  const [infoForm, setInfoForm] = useState({
+    horarios_entrega: defaults.horarios_entrega,
+    costo_envio_texto: defaults.costo_envio_texto,
+    punto_retiro_texto: defaults.punto_retiro_texto,
+  })
   
   const [formData, setFormData] = useState({
     nombre: '',
@@ -121,6 +139,26 @@ const AdminDelivery = () => {
     }
   }
 
+  // Sincronizar formulario de info cuando carga deliveryInfo
+  useEffect(() => {
+    if (deliveryInfo) {
+      setInfoForm({
+        horarios_entrega: deliveryInfo.horarios_entrega || defaults.horarios_entrega,
+        costo_envio_texto: deliveryInfo.costo_envio_texto || defaults.costo_envio_texto,
+        punto_retiro_texto: deliveryInfo.punto_retiro_texto || defaults.punto_retiro_texto,
+      })
+    }
+  }, [deliveryInfo])
+
+  const handleSaveInfo = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!deliveryInfo?.id) return
+    await updateDeliveryInfo.mutateAsync({
+      id: deliveryInfo.id,
+      updates: infoForm,
+    })
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -149,6 +187,81 @@ const AdminDelivery = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Información de la sección Delivery (textos públicos) */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Truck className="w-5 h-5 text-primary" />
+              Información de la sección Delivery
+            </CardTitle>
+            <CardDescription>
+              Estos textos se muestran en la página pública (Horarios de entrega, Costo de envío, Punto de retiro). Una línea por renglón.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadingInfo ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <form onSubmit={handleSaveInfo} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="horarios" className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Horarios de Entrega
+                  </Label>
+                  <Textarea
+                    id="horarios"
+                    value={infoForm.horarios_entrega}
+                    onChange={(e) => setInfoForm((f) => ({ ...f, horarios_entrega: e.target.value }))}
+                    placeholder="Lunes a Viernes: 10:00 - 19:00 hrs"
+                    rows={3}
+                    className="font-mono text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="costo_texto" className="flex items-center gap-2">
+                    <Truck className="w-4 h-4" />
+                    Costo de Envío (texto)
+                  </Label>
+                  <Textarea
+                    id="costo_texto"
+                    value={infoForm.costo_envio_texto}
+                    onChange={(e) => setInfoForm((f) => ({ ...f, costo_envio_texto: e.target.value }))}
+                    placeholder="Desde $3.990 según zona"
+                    rows={3}
+                    className="font-mono text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="retiro" className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Punto de Retiro (texto)
+                  </Label>
+                  <Textarea
+                    id="retiro"
+                    value={infoForm.punto_retiro_texto}
+                    onChange={(e) => setInfoForm((f) => ({ ...f, punto_retiro_texto: e.target.value }))}
+                    placeholder="Disponible retiro sin costo"
+                    rows={3}
+                    className="font-mono text-sm"
+                  />
+                </div>
+                <Button type="submit" disabled={updateDeliveryInfo.isPending || !deliveryInfo?.id}>
+                  {updateDeliveryInfo.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    'Guardar textos'
+                  )}
+                </Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Search */}
         <div className="mb-6">
           <div className="relative w-full max-w-md">

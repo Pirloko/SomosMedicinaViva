@@ -1,7 +1,7 @@
 -- ============================================
--- CONFIGURAR ÚNICO ADMINISTRADOR
+-- CONFIGURAR ADMINISTRADORES
 -- ============================================
--- smv.informaciones@gmail.com es el ÚNICO usuario administrador.
+-- Administradores: smv.informaciones@gmail.com y admin@gmail.com
 --
 -- Pasos en Supabase (SQL Editor):
 -- 1. Ejecutar primero usuarios_roles.sql (funciones que fijan admin por email).
@@ -19,11 +19,22 @@ ON CONFLICT (user_id) DO UPDATE SET
   activo = true,
   updated_at = NOW();
 
--- 2. Cualquier otro usuario en la tabla debe ser vendedor
+-- 2. Asignar rol admin a admin@gmail.com
+INSERT INTO usuarios_roles (user_id, rol, nombre_usuario, activo)
+SELECT id, 'admin', 'Admin', true
+FROM auth.users
+WHERE email = 'admin@gmail.com'
+ON CONFLICT (user_id) DO UPDATE SET
+  rol = 'admin',
+  nombre_usuario = 'Admin',
+  activo = true,
+  updated_at = NOW();
+
+-- 3. Cualquier otro usuario en la tabla debe ser vendedor (excepto los dos admins)
 UPDATE usuarios_roles ur
 SET rol = 'vendedor', updated_at = NOW()
 WHERE ur.user_id NOT IN (
-  SELECT id FROM auth.users WHERE email = 'smv.informaciones@gmail.com'
+  SELECT id FROM auth.users WHERE email IN ('smv.informaciones@gmail.com', 'admin@gmail.com')
 );
 
 -- Verificación: listar usuarios y sus roles

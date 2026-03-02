@@ -1,10 +1,41 @@
-import { useState, useEffect } from "react";
-import { MessageCircle, Sparkles, Heart, Leaf, MapPin } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { MessageCircle, Sparkles, Heart, Leaf, MapPin, CheckCircle2, Star, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useHeroImagenes } from "@/hooks/useHeroImagenes";
+import { useHeroEtiquetas, getDefaultHeroEtiquetas } from "@/hooks/useHeroEtiquetas";
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  Heart,
+  Leaf,
+  Sparkles,
+  CheckCircle2,
+  Star,
+};
 
 const Hero = () => {
   const { data: heroImagenes } = useHeroImagenes();
+  const { data: heroEtiquetasRow } = useHeroEtiquetas();
+  const etiquetas = useMemo(() => {
+    const def = getDefaultHeroEtiquetas();
+    if (!heroEtiquetasRow) return def;
+    return {
+      floating_1_label: heroEtiquetasRow.floating_1_label || def.floating_1_label,
+      floating_1_value: heroEtiquetasRow.floating_1_value || def.floating_1_value,
+      floating_2_label: heroEtiquetasRow.floating_2_label || def.floating_2_label,
+      floating_2_value: heroEtiquetasRow.floating_2_value || def.floating_2_value,
+      feature_1_icon: heroEtiquetasRow.feature_1_icon || def.feature_1_icon,
+      feature_1_text: heroEtiquetasRow.feature_1_text || def.feature_1_text,
+      feature_2_icon: heroEtiquetasRow.feature_2_icon || def.feature_2_icon,
+      feature_2_text: heroEtiquetasRow.feature_2_text || def.feature_2_text,
+      feature_3_icon: heroEtiquetasRow.feature_3_icon || def.feature_3_icon,
+      feature_3_text: heroEtiquetasRow.feature_3_text || def.feature_3_text,
+    };
+  }, [heroEtiquetasRow]);
+  const features = useMemo(() => [
+    { icon: ICON_MAP[etiquetas.feature_1_icon] ?? Heart, text: etiquetas.feature_1_text },
+    { icon: ICON_MAP[etiquetas.feature_2_icon] ?? Leaf, text: etiquetas.feature_2_text },
+    { icon: ICON_MAP[etiquetas.feature_3_icon] ?? Sparkles, text: etiquetas.feature_3_text },
+  ], [etiquetas]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Carrusel automático: cambiar imagen cada 2 segundos
@@ -67,11 +98,7 @@ const Hero = () => {
 
             {/* Features */}
             <div className="flex flex-wrap justify-center gap-3 animate-fade-up" style={{ animationDelay: "0.3s" }}>
-              {[
-                { icon: Heart, text: "Apto diabéticos" },
-                { icon: Leaf, text: "Vegano" },
-                { icon: Sparkles, text: "Sin gluten" },
-              ].map((feature, index) => (
+              {features.map((feature, index) => (
                 <div
                   key={index}
                   className="flex items-center gap-2 px-4 py-2 bg-card rounded-full shadow-soft text-sm font-medium text-foreground"
@@ -119,13 +146,13 @@ const Hero = () => {
 
               {/* Floating badges */}
               <div className="absolute top-12 -left-4 bg-card rounded-2xl shadow-card px-4 py-3 animate-float">
-                <p className="text-xs text-muted-foreground">Sin Azúcar</p>
-                <p className="font-display font-semibold text-primary">100%</p>
+                <p className="text-xs text-muted-foreground">{etiquetas.floating_1_label}</p>
+                <p className="font-display font-semibold text-primary">{etiquetas.floating_1_value}</p>
               </div>
               
               <div className="absolute bottom-20 -right-4 bg-card rounded-2xl shadow-card px-4 py-3 animate-float" style={{ animationDelay: "1s" }}>
-                <p className="text-xs text-muted-foreground">Vegano</p>
-                <p className="font-display font-semibold text-accent-foreground">🌱</p>
+                <p className="text-xs text-muted-foreground">{etiquetas.floating_2_label}</p>
+                <p className="font-display font-semibold text-accent-foreground">{etiquetas.floating_2_value}</p>
               </div>
             </div>
           </div>

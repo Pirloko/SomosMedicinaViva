@@ -377,6 +377,82 @@ export interface Database {
         }
       }
 
+      // 🚚 DELIVERY INFO (textos sección Delivery: horarios, costo, retiro)
+      delivery_info: {
+        Row: {
+          id: string
+          horarios_entrega: string
+          costo_envio_texto: string
+          punto_retiro_texto: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          horarios_entrega?: string
+          costo_envio_texto?: string
+          punto_retiro_texto?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          horarios_entrega?: string
+          costo_envio_texto?: string
+          punto_retiro_texto?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+
+      hero_etiquetas: {
+        Row: {
+          id: string
+          floating_1_label: string
+          floating_1_value: string
+          floating_2_label: string
+          floating_2_value: string
+          feature_1_icon: string
+          feature_1_text: string
+          feature_2_icon: string
+          feature_2_text: string
+          feature_3_icon: string
+          feature_3_text: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          floating_1_label?: string
+          floating_1_value?: string
+          floating_2_label?: string
+          floating_2_value?: string
+          feature_1_icon?: string
+          feature_1_text?: string
+          feature_2_icon?: string
+          feature_2_text?: string
+          feature_3_icon?: string
+          feature_3_text?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          floating_1_label?: string
+          floating_1_value?: string
+          floating_2_label?: string
+          floating_2_value?: string
+          feature_1_icon?: string
+          feature_1_text?: string
+          feature_2_icon?: string
+          feature_2_text?: string
+          feature_3_icon?: string
+          feature_3_text?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+
       // 🏷️ CATEGORÍAS
       categorias: {
         Row: {

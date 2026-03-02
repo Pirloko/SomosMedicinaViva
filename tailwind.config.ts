@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Playfair Display", "serif"],
-        body: ["Nunito", "sans-serif"],
+        display: ["New Sun Playful", "Nunito", "cursive"],
+        body: ["New Sun Playful", "Nunito", "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",
