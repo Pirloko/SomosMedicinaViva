@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useAllProducts, useDeleteProduct, useDeleteProductPermanently, useToggleProductoActivo } from '@/hooks/useProducts'
+import { useAllProducts, useUpdateProduct, useDeleteProduct, useDeleteProductPermanently, useToggleProductoActivo } from '@/hooks/useProducts'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProductosCriticos } from '@/hooks/useStock'
 import { Button } from '@/components/ui/button'
@@ -40,6 +40,7 @@ const AdminProductos = () => {
   const isVendedor = location.pathname.startsWith('/vendedor') || role === 'vendedor'
   const { data: products, isLoading } = useAllProducts()
   const { data: productosCriticos } = useProductosCriticos()
+  const updateProduct = useUpdateProduct()
   const deleteProduct = useDeleteProduct()
   const deleteProductPermanently = useDeleteProductPermanently()
   const toggleProductoActivo = useToggleProductoActivo()
@@ -47,6 +48,61 @@ const AdminProductos = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deletePermanentlyId, setDeletePermanentlyId] = useState<string | null>(null)
+  const normalizingRef = useRef(false)
+
+  /** Si hay órdenes duplicados, reasigna 0, 1, 2, … únicos (solo admin) */
+  useEffect(() => {
+    if (isVendedor || !products?.length || normalizingRef.current) return
+    const ordens = products.map((p) => (p as { orden?: number }).orden ?? 0)
+    if (new Set(ordens).size === products.length) return
+    normalizingRef.current = true
+    const sorted = [...products].sort((a, b) => {
+      const oa = (a as { orden?: number }).orden ?? 0
+      const ob = (b as { orden?: number }).orden ?? 0
+      if (oa !== ob) return oa - ob
+      return (a.created_at || '').localeCompare(b.created_at || '')
+    })
+    const updates = sorted
+      .map((p, i) => ({ id: p.id, orden: i, old: (p as { orden?: number }).orden ?? 0 }))
+      .filter(({ orden, old }) => orden !== old)
+      .map(({ id, orden }) => ({ id, orden }))
+    if (updates.length === 0) {
+      normalizingRef.current = false
+      return
+    }
+    ;(async () => {
+      try {
+        for (const { id, orden } of updates) {
+          await updateProduct.mutateAsync({ id, updates: { orden } })
+        }
+      } finally {
+        normalizingRef.current = false
+      }
+    })()
+  }, [products, isVendedor])
+
+  /** Reordena: mueve el producto a la posición indicada y desplaza el resto (2→3, 3→4, etc.) */
+  const handleOrdenChange = async (productId: string, newOrdenRaw: number) => {
+    const targetPos = Math.max(0, Math.floor(newOrdenRaw))
+    if (!products?.length) return
+    const sorted = [...products].sort((a, b) => ((a as { orden?: number }).orden ?? 0) - ((b as { orden?: number }).orden ?? 0))
+    const idx = sorted.findIndex((p) => p.id === productId)
+    if (idx === -1) return
+    const [moved] = sorted.splice(idx, 1)
+    const newIndex = Math.min(targetPos, sorted.length)
+    sorted.splice(newIndex, 0, moved)
+    const updates: { id: string; orden: number }[] = sorted
+      .map((p, i) => ({ id: p.id, orden: i, oldOrden: (p as { orden?: number }).orden ?? 0 }))
+      .filter(({ orden, oldOrden }) => oldOrden !== orden)
+      .map(({ id, orden }) => ({ id, orden }))
+    try {
+      for (const { id, orden } of updates) {
+        await updateProduct.mutateAsync({ id, updates: { orden } })
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   // Filtrar productos por búsqueda
   const filteredProducts = products?.filter(product =>
@@ -167,6 +223,18 @@ const AdminProductos = () => {
                       <Badge variant="outline" className="mt-2 text-xs">
                         {product.categoria}
                       </Badge>
+                      {!isVendedor && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-xs text-muted-foreground">Orden:</span>
+                          <Input
+                            type="number"
+                            min={0}
+                            className="w-16 h-8 text-center text-sm tabular-nums"
+                            defaultValue={(product as { orden?: number }).orden ?? 0}
+                            onBlur={(e) => handleOrdenChange(product.id, Number(e.target.value))}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t">
@@ -237,6 +305,7 @@ const AdminProductos = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  {!isVendedor && <TableHead className="w-20">Orden</TableHead>}
                   <TableHead className="w-20">Imagen</TableHead>
                   <TableHead>Nombre</TableHead>
                   <TableHead>Categoría</TableHead>
@@ -249,13 +318,24 @@ const AdminProductos = () => {
               <TableBody>
                 {filteredProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={isVendedor ? 6 : 7} className="text-center py-10 text-muted-foreground">
+                    <TableCell colSpan={isVendedor ? 6 : 8} className="text-center py-10 text-muted-foreground">
                       No se encontraron productos
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredProducts.map((product) => (
                     <TableRow key={product.id}>
+                      {!isVendedor && (
+                        <TableCell className="w-20">
+                          <Input
+                            type="number"
+                            min={0}
+                            className="w-14 h-8 text-center tabular-nums"
+                            defaultValue={(product as { orden?: number }).orden ?? 0}
+                            onBlur={(e) => handleOrdenChange(product.id, Number(e.target.value))}
+                          />
+                        </TableCell>
+                      )}
                       <TableCell>
                         <img
                           src={product.imagen_url || '/placeholder.svg'}

@@ -16,6 +16,7 @@ export const useProducts = (categoria?: string) => {
         .from('productos')
         .select('*')
         .eq('activo', true)
+        .order('orden', { ascending: true })
         .order('created_at', { ascending: false })
 
       if (categoria && categoria !== 'all') {
@@ -61,6 +62,7 @@ export const useAllProducts = () => {
       const { data, error } = await supabase
         .from('productos')
         .select('*')
+        .order('orden', { ascending: true })
         .order('created_at', { ascending: false })
 
       if (error) throw error

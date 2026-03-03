@@ -75,7 +75,7 @@ const Hero = () => {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 md:pt-32 md:pb-20">
         {/* Layout vertical centrado */}
-        <div className="flex flex-col items-center text-center space-y-8 md:space-y-12">
+        <div className="flex flex-col items-center text-center space-y-10 sm:space-y-8 md:space-y-12">
           
           {/* PARTE 1: Textos y Features */}
           <div className="w-full max-w-4xl space-y-6 md:space-y-8">
@@ -111,7 +111,7 @@ const Hero = () => {
           </div>
 
           {/* PARTE 2: Imagen del Carrusel */}
-          <div className="relative animate-fade-up w-full max-w-lg" style={{ animationDelay: "0.4s" }}>
+          <div className="relative animate-fade-up w-full max-w-lg pb-6 sm:pb-10 md:pb-0" style={{ animationDelay: "0.4s" }}>
             <div className="relative aspect-square mx-auto animate-spin-entrance">
               {/* Decorative ring */}
               <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20 animate-spin" style={{ animationDuration: "30s" }} />
@@ -128,7 +128,7 @@ const Hero = () => {
               
               {/* Indicadores del carrusel */}
               {heroImagenes && heroImagenes.length > 1 && (
-                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+                <div className="absolute -bottom-6 sm:-bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
                   {heroImagenes.map((_, index) => (
                     <button
                       key={index}
@@ -157,18 +157,18 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* PARTE 3: Botones CTA */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up" style={{ animationDelay: "0.5s" }}>
-            <Button variant="whatsapp" size="xl" onClick={handleWhatsApp}>
-              <MessageCircle className="w-5 h-5" />
+          {/* PARTE 3: Botones CTA — más espacio en móvil */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-sm sm:max-w-none mx-auto animate-fade-up pt-2 sm:pt-0" style={{ animationDelay: "0.5s" }}>
+            <Button variant="whatsapp" size="xl" className="min-h-[48px] sm:min-h-0 w-full sm:w-auto" onClick={handleWhatsApp}>
+              <MessageCircle className="w-5 h-5 shrink-0" />
               Pedir por WhatsApp
             </Button>
-            <Button variant="outline" size="xl" asChild>
+            <Button variant="outline" size="xl" className="min-h-[48px] sm:min-h-0 w-full sm:w-auto" asChild>
               <a href="#catalogo">Ver Catálogo</a>
             </Button>
-            <Button variant="outline" size="xl" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
+            <Button variant="outline" size="xl" className="min-h-[48px] sm:min-h-0 w-full sm:w-auto border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
               <a href="#puntos-venta">
-                <MapPin className="w-5 h-5" />
+                <MapPin className="w-5 h-5 shrink-0" />
                 Puntos de Venta
               </a>
             </Button>

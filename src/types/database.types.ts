@@ -29,6 +29,7 @@ export interface Database {
           stock_disponible: number
           stock_minimo: number
           costo_produccion_unitario: number
+          orden: number
           activo: boolean
           created_at: string
           updated_at: string
@@ -44,6 +45,7 @@ export interface Database {
           stock_disponible?: number
           stock_minimo?: number
           costo_produccion_unitario?: number
+          orden?: number
           activo?: boolean
           created_at?: string
           updated_at?: string
@@ -59,6 +61,7 @@ export interface Database {
           stock_disponible?: number
           stock_minimo?: number
           costo_produccion_unitario?: number
+          orden?: number
           activo?: boolean
           created_at?: string
           updated_at?: string

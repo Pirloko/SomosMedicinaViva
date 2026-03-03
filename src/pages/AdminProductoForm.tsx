@@ -45,6 +45,7 @@ type ProductFormData = {
   tags: string
   stock_disponible: number
   stock_minimo: number
+  orden: number
   activo: boolean
 }
 
@@ -90,6 +91,7 @@ const AdminProductoForm = () => {
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     defaultValues: {
+      orden: 0,
       activo: true,
     },
   })
@@ -106,6 +108,7 @@ const AdminProductoForm = () => {
       setValue('imagen_url', product.imagen_url || '')
       setValue('tags', product.tags?.join(', ') || '')
       setValue('stock_minimo', product.stock_minimo || 5)
+      setValue('orden', (product as { orden?: number }).orden ?? 0)
       setValue('activo', product.activo)
     }
   }, [product, setValue])
@@ -128,6 +131,7 @@ const AdminProductoForm = () => {
         tags: tagsArray,
         stock_disponible: 0, // Se gestiona desde "Manejo de Stock"
         stock_minimo: Number(data.stock_minimo) || 5,
+        orden: Math.max(0, Math.floor(Number(data.orden) || 0)),
         activo: data.activo,
       }
 
@@ -312,6 +316,27 @@ const AdminProductoForm = () => {
                   <p className="text-xs text-muted-foreground">
                     Te alertará cuando el stock esté por debajo. El stock disponible se gestiona desde "Manejo de Stock"
                   </p>
+                </div>
+
+                {/* Orden en catálogo */}
+                <div className="space-y-2">
+                  <Label htmlFor="orden">Orden en el catálogo</Label>
+                  <Input
+                    id="orden"
+                    type="number"
+                    min={0}
+                    {...register('orden', {
+                      min: { value: 0, message: 'Mínimo 0' },
+                      valueAsNumber: true,
+                    })}
+                    placeholder="0"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Número de posición en "Nuestro Catálogo". Menor = aparece primero (0, 1, 2…).
+                  </p>
+                  {errors.orden && (
+                    <p className="text-sm text-destructive">{errors.orden.message}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
