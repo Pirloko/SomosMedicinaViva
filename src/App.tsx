@@ -31,6 +31,7 @@ import VendedorDashboard from "./pages/VendedorDashboard";
 import NotFound from "./pages/NotFound";
 import { checkSupabaseConnection } from "@/lib/supabase";
 import { useHeroEtiquetas } from "@/hooks/useHeroEtiquetas";
+import { Analytics } from "@vercel/analytics/react";
 
 const queryClient = new QueryClient();
 
@@ -122,6 +123,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <Analytics />
           <BrowserRouter>
             <DocumentTitle />
             <SiteBackground />
