@@ -17,101 +17,101 @@
 
 @layer base {
   :root {
-    /* Medicina Viva - Healthy Pastry Design System */
+    /* Medicina Viva - Paleta del logo (#6b4520 #ae844f #29190e #325d11 #79b133) */
     
-    /* Primary - Mint Green */
-    --primary: 158 45% 52%;
+    /* Primary - Verde lima del logo #79b133 */
+    --primary: 87 55% 45%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 158 45% 92%;
-    --primary-dark: 158 45% 35%;
+    --primary-light: 87 40% 94%;
+    --primary-dark: 93 69% 22%;
     
-    /* Secondary - Warm Beige */
-    --secondary: 35 30% 92%;
-    --secondary-foreground: 25 30% 25%;
+    /* Secondary - Beige dorado claro #ae844f */
+    --secondary: 32 38% 94%;
+    --secondary-foreground: 24 49% 11%;
     
-    /* Accent - Sage Green */
-    --accent: 145 25% 72%;
-    --accent-foreground: 145 30% 20%;
+    /* Accent - Dorado del logo #ae844f */
+    --accent: 32 38% 50%;
+    --accent-foreground: 0 0% 100%;
     
-    /* Cacao Brown */
-    --cacao: 25 35% 35%;
-    --cacao-light: 25 30% 85%;
+    /* Cacao - Marrón medio #6b4520 */
+    --cacao: 28 54% 27%;
+    --cacao-light: 32 30% 90%;
     
-    /* Cream */
-    --cream: 40 40% 97%;
-    --cream-dark: 35 25% 90%;
+    /* Cream - Fondos cálidos */
+    --cream: 40 35% 98%;
+    --cream-dark: 32 25% 92%;
     
-    /* Base colors */
-    --background: 40 40% 98%;
-    --foreground: 25 25% 20%;
+    /* Base - Marrón oscuro texto #29190e */
+    --background: 40 35% 98%;
+    --foreground: 24 49% 11%;
     
     --card: 0 0% 100%;
-    --card-foreground: 25 25% 20%;
+    --card-foreground: 24 49% 11%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 25 25% 20%;
+    --popover-foreground: 24 49% 11%;
     
-    --muted: 35 20% 94%;
-    --muted-foreground: 25 15% 45%;
+    --muted: 32 25% 92%;
+    --muted-foreground: 28 20% 45%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 35 25% 88%;
-    --input: 35 25% 88%;
-    --ring: 158 45% 52%;
+    --border: 32 25% 88%;
+    --input: 32 25% 88%;
+    --ring: 87 55% 45%;
     
     --radius: 1rem;
     
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(158 45% 95%) 0%, hsl(40 40% 97%) 50%, hsl(35 30% 94%) 100%);
-    --gradient-mint: linear-gradient(180deg, hsl(158 45% 92%) 0%, hsl(40 40% 98%) 100%);
-    --gradient-warm: linear-gradient(180deg, hsl(35 30% 94%) 0%, hsl(40 40% 98%) 100%);
+    /* Gradients - verdes y dorados del logo */
+    --gradient-hero: linear-gradient(135deg, hsl(87 40% 96%) 0%, hsl(40 35% 98%) 50%, hsl(32 30% 95%) 100%);
+    --gradient-mint: linear-gradient(180deg, hsl(87 40% 94%) 0%, hsl(40 35% 98%) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(32 30% 94%) 0%, hsl(40 35% 98%) 100%);
     
-    /* Shadows */
-    --shadow-soft: 0 4px 20px -4px hsl(25 30% 50% / 0.1);
-    --shadow-card: 0 8px 30px -8px hsl(25 30% 50% / 0.15);
-    --shadow-hover: 0 12px 40px -8px hsl(158 45% 50% / 0.2);
+    /* Shadows - tonos marrones */
+    --shadow-soft: 0 4px 20px -4px hsl(28 40% 30% / 0.12);
+    --shadow-card: 0 8px 30px -8px hsl(28 40% 30% / 0.15);
+    --shadow-hover: 0 12px 40px -8px hsl(87 55% 45% / 0.25);
     
-    /* Sidebar (keeping defaults) */
-    --sidebar-background: 40 40% 98%;
-    --sidebar-foreground: 25 25% 20%;
-    --sidebar-primary: 158 45% 52%;
+    /* Sidebar */
+    --sidebar-background: 40 35% 98%;
+    --sidebar-foreground: 24 49% 11%;
+    --sidebar-primary: 87 55% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 35 30% 92%;
-    --sidebar-accent-foreground: 25 30% 25%;
-    --sidebar-border: 35 25% 88%;
-    --sidebar-ring: 158 45% 52%;
+    --sidebar-accent: 32 38% 94%;
+    --sidebar-accent-foreground: 24 49% 11%;
+    --sidebar-border: 32 25% 88%;
+    --sidebar-ring: 87 55% 45%;
   }
 
   .dark {
-    --background: 25 20% 10%;
+    --background: 24 30% 8%;
     --foreground: 40 20% 95%;
-    --card: 25 20% 12%;
+    --card: 24 25% 11%;
     --card-foreground: 40 20% 95%;
-    --popover: 25 20% 12%;
+    --popover: 24 25% 11%;
     --popover-foreground: 40 20% 95%;
-    --primary: 158 45% 55%;
-    --primary-foreground: 25 20% 10%;
-    --secondary: 25 20% 18%;
+    --primary: 87 55% 50%;
+    --primary-foreground: 24 49% 11%;
+    --secondary: 28 30% 18%;
     --secondary-foreground: 40 20% 95%;
-    --muted: 25 15% 20%;
-    --muted-foreground: 35 15% 65%;
-    --accent: 145 25% 40%;
-    --accent-foreground: 40 20% 95%;
+    --muted: 28 20% 18%;
+    --muted-foreground: 32 15% 65%;
+    --accent: 32 38% 45%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 25 15% 20%;
-    --input: 25 15% 20%;
-    --ring: 158 45% 55%;
-    --sidebar-background: 25 20% 10%;
+    --border: 28 20% 20%;
+    --input: 28 20% 20%;
+    --ring: 87 55% 50%;
+    --sidebar-background: 24 30% 8%;
     --sidebar-foreground: 40 20% 95%;
-    --sidebar-primary: 158 45% 55%;
-    --sidebar-primary-foreground: 25 20% 10%;
-    --sidebar-accent: 25 20% 18%;
+    --sidebar-primary: 87 55% 50%;
+    --sidebar-primary-foreground: 24 49% 11%;
+    --sidebar-accent: 28 30% 18%;
     --sidebar-accent-foreground: 40 20% 95%;
-    --sidebar-border: 25 15% 20%;
-    --sidebar-ring: 158 45% 55%;
+    --sidebar-border: 28 20% 20%;
+    --sidebar-ring: 87 55% 50%;
   }
 }
 
@@ -132,13 +132,13 @@
   }
   
   body::before {
-    content: '';
+            content: '';
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('/imagen/fondo.jpg');
+    background-image: var(--site-bg-image, url('/imagen/fondo.jpg'));
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -180,25 +180,25 @@
   
   .gradient-hero {
     background: linear-gradient(135deg, 
-      hsla(158, 45%, 95%, 0.70) 0%, 
-      hsla(40, 40%, 97%, 0.70) 50%, 
-      hsla(35, 30%, 94%, 0.70) 100%);
+      hsla(87, 40%, 96%, 0.75) 0%, 
+      hsla(40, 35%, 98%, 0.75) 50%, 
+      hsla(32, 30%, 95%, 0.75) 100%);
   }
   
   .gradient-mint {
     background: linear-gradient(180deg, 
-      hsla(158, 45%, 92%, 0.70) 0%, 
-      hsla(40, 40%, 98%, 0.70) 100%);
+      hsla(87, 40%, 94%, 0.75) 0%, 
+      hsla(40, 35%, 98%, 0.75) 100%);
   }
   
   .gradient-warm {
     background: linear-gradient(180deg, 
-      hsla(35, 30%, 94%, 0.70) 0%, 
-      hsla(40, 40%, 98%, 0.70) 100%);
+      hsla(32, 30%, 94%, 0.75) 0%, 
+      hsla(40, 35%, 98%, 0.75) 100%);
   }
   
   .bg-background {
-    background: hsla(40, 40%, 98%, 0.70) !important;
+    background: hsla(40, 35%, 98%, 0.75) !important;
   }
   
   .text-gradient {

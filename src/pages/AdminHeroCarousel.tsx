@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAllHeroImagenes, useToggleHeroImagenActivo, useDeleteHeroImagen, useCreateHeroImagen, useUpdateHeroImagen } from '@/hooks/useHeroImagenes'
-import { useHeroEtiquetas, useUpdateHeroEtiquetas, getDefaultHeroEtiquetas } from '@/hooks/useHeroEtiquetas'
+import { useHeroEtiquetas, useUpdateHeroEtiquetas, useUpdateHeroFondo, getDefaultHeroEtiquetas } from '@/hooks/useHeroEtiquetas'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -71,6 +71,7 @@ const AdminHeroCarousel = () => {
   const { data: imagenes, isLoading } = useAllHeroImagenes()
   const { data: heroEtiquetas, isLoading: loadingEtiquetas } = useHeroEtiquetas()
   const updateHeroEtiquetas = useUpdateHeroEtiquetas()
+  const updateHeroFondo = useUpdateHeroFondo()
   const toggleImagenActivo = useToggleHeroImagenActivo()
   const deleteImagen = useDeleteHeroImagen()
   const createImagen = useCreateHeroImagen()
@@ -88,6 +89,8 @@ const AdminHeroCarousel = () => {
     feature_2_text: defaultsEtiquetas.feature_2_text,
     feature_3_icon: defaultsEtiquetas.feature_3_icon,
     feature_3_text: defaultsEtiquetas.feature_3_text,
+    subheadline: defaultsEtiquetas.subheadline,
+    fondo_url: '',
   })
   
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -116,6 +119,8 @@ const AdminHeroCarousel = () => {
         feature_2_text: heroEtiquetas.feature_2_text ?? defaultsEtiquetas.feature_2_text,
         feature_3_icon: heroEtiquetas.feature_3_icon ?? defaultsEtiquetas.feature_3_icon,
         feature_3_text: heroEtiquetas.feature_3_text ?? defaultsEtiquetas.feature_3_text,
+        subheadline: heroEtiquetas.subheadline ?? defaultsEtiquetas.subheadline,
+        fondo_url: heroEtiquetas.fondo_url ?? '',
       })
     }
   }, [heroEtiquetas])
@@ -123,9 +128,30 @@ const AdminHeroCarousel = () => {
   const handleSaveEtiquetas = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!heroEtiquetas?.id) return
+    const updates = {
+      floating_1_label: etiquetasForm.floating_1_label,
+      floating_1_value: etiquetasForm.floating_1_value,
+      floating_2_label: etiquetasForm.floating_2_label,
+      floating_2_value: etiquetasForm.floating_2_value,
+      feature_1_icon: etiquetasForm.feature_1_icon,
+      feature_1_text: etiquetasForm.feature_1_text,
+      feature_2_icon: etiquetasForm.feature_2_icon,
+      feature_2_text: etiquetasForm.feature_2_text,
+      feature_3_icon: etiquetasForm.feature_3_icon,
+      feature_3_text: etiquetasForm.feature_3_text,
+      subheadline: etiquetasForm.subheadline,
+    }
     await updateHeroEtiquetas.mutateAsync({
       id: heroEtiquetas.id,
-      updates: etiquetasForm,
+      updates,
+    })
+  }
+
+  const handleSaveFondo = () => {
+    if (!heroEtiquetas?.id) return
+    updateHeroFondo.mutate({
+      id: heroEtiquetas.id,
+      fondo_url: etiquetasForm.fondo_url?.trim() || null,
     })
   }
 
@@ -204,6 +230,49 @@ const AdminHeroCarousel = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Imagen de fondo de la web */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-primary" />
+              Imagen de fondo
+            </CardTitle>
+            <CardDescription>
+              Imagen que se muestra de fondo en toda la web. Formatos: PNG o JPG (máx. 5MB). Si no subes ninguna, se usa la imagen por defecto.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadingEtiquetas ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <ImageUpload
+                  currentImageUrl={etiquetasForm.fondo_url || undefined}
+                  onImageUploaded={(url) => setEtiquetasForm((f) => ({ ...f, fondo_url: url }))}
+                  folder="otros"
+                  label=""
+                />
+                <Button
+                  type="button"
+                  onClick={handleSaveFondo}
+                  disabled={updateHeroFondo.isPending || !heroEtiquetas?.id}
+                >
+                  {updateHeroFondo.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Guardando fondo…
+                    </>
+                  ) : (
+                    'Guardar imagen de fondo'
+                  )}
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Etiquetas del banner (floating badges + pills) */}
         <Card className="mb-8">
           <CardHeader>
@@ -222,6 +291,17 @@ const AdminHeroCarousel = () => {
               </div>
             ) : (
               <form onSubmit={handleSaveEtiquetas} className="space-y-6">
+                <div className="space-y-2">
+                  <Label>Subtítulo (debajo del título principal)</Label>
+                  <Input
+                    value={etiquetasForm.subheadline}
+                    onChange={(e) => setEtiquetasForm((f) => ({ ...f, subheadline: e.target.value }))}
+                    placeholder="Sin azúcar · Sin gluten · Sin refinados · 100% Vegana"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Texto que aparece bajo &quot;Pastelería Saludable&quot; en la portada.
+                  </p>
+                </div>
                 <div>
                   <h4 className="text-sm font-semibold text-foreground mb-3">Tarjetas flotantes (sobre la imagen)</h4>
                   <div className="grid gap-4 sm:grid-cols-2">

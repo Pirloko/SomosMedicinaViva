@@ -30,6 +30,7 @@ import AdminUsuarios from "./pages/AdminUsuarios";
 import VendedorDashboard from "./pages/VendedorDashboard";
 import NotFound from "./pages/NotFound";
 import { checkSupabaseConnection } from "@/lib/supabase";
+import { useHeroEtiquetas } from "@/hooks/useHeroEtiquetas";
 
 const queryClient = new QueryClient();
 
@@ -91,6 +92,24 @@ const DocumentTitle = () => {
   return null;
 };
 
+const SiteBackground = () => {
+  const { data: heroEtiquetas } = useHeroEtiquetas();
+  useEffect(() => {
+    const url = heroEtiquetas?.fondo_url?.trim();
+    const value = url ? `url(${JSON.stringify(url)})` : "";
+    const root = document.documentElement;
+    if (value) {
+      root.style.setProperty("--site-bg-image", value);
+    } else {
+      root.style.removeProperty("--site-bg-image");
+    }
+    return () => {
+      root.style.removeProperty("--site-bg-image");
+    };
+  }, [heroEtiquetas?.fondo_url, heroEtiquetas?.updated_at]);
+  return null;
+};
+
 const App = () => {
   useEffect(() => {
     // Verificar conexión con Supabase al iniciar
@@ -105,6 +124,7 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
             <DocumentTitle />
+            <SiteBackground />
             <Routes>
               {/* Rutas Públicas */}
               <Route path="/" element={<Index />} />

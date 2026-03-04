@@ -17,6 +17,8 @@ const DEFAULT: Omit<HeroEtiquetas, 'id' | 'created_at' | 'updated_at'> = {
   feature_2_text: 'Vegano',
   feature_3_icon: 'Sparkles',
   feature_3_text: 'Sin gluten',
+  subheadline: 'Sin azúcar · Sin gluten · Sin refinados · 100% Vegana',
+  fondo_url: null,
 }
 
 /** Hook para obtener las etiquetas del Hero (público y admin) */
@@ -61,8 +63,8 @@ export const useUpdateHeroEtiquetas = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hero-etiquetas'] })
       toast({
-        title: '✅ Etiquetas guardadas',
-        description: 'Las etiquetas del banner se actualizaron correctamente',
+        title: '✅ Guardado',
+        description: 'Etiquetas e imagen de fondo guardados. Actualiza la página principal (F5) para ver el nuevo fondo.',
       })
     },
     onError: (error: Error) => {
@@ -70,6 +72,40 @@ export const useUpdateHeroEtiquetas = () => {
         variant: 'destructive',
         title: '❌ Error',
         description: error.message || 'No se pudo guardar',
+      })
+    },
+  })
+}
+
+/** Hook para actualizar solo la imagen de fondo del sitio (solo admin) */
+export const useUpdateHeroFondo = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+
+  return useMutation({
+    mutationFn: async ({ id, fondo_url }: { id: string; fondo_url: string | null }) => {
+      const { data, error } = await supabase
+        .from('hero_etiquetas')
+        .update({ fondo_url } as Record<string, unknown>)
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) throw error
+      return data as HeroEtiquetas
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['hero-etiquetas'] })
+      toast({
+        title: '✅ Imagen de fondo guardada',
+        description: 'Actualiza la página principal (F5) para ver el cambio.',
+      })
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: 'destructive',
+        title: '❌ Error',
+        description: error.message || 'No se pudo guardar el fondo',
       })
     },
   })

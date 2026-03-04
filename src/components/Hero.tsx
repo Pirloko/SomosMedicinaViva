@@ -29,6 +29,7 @@ const Hero = () => {
       feature_2_text: heroEtiquetasRow.feature_2_text || def.feature_2_text,
       feature_3_icon: heroEtiquetasRow.feature_3_icon || def.feature_3_icon,
       feature_3_text: heroEtiquetasRow.feature_3_text || def.feature_3_text,
+      subheadline: heroEtiquetasRow.subheadline || def.subheadline,
     };
   }, [heroEtiquetasRow]);
   const features = useMemo(() => [
@@ -65,7 +66,7 @@ const Hero = () => {
       };
 
   return (
-    <section id="inicio" className="relative gradient-hero overflow-hidden">
+    <section id="inicio" className="relative gradient-hero overflow-visible">
       {/* Decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" />
@@ -93,7 +94,7 @@ const Hero = () => {
 
             {/* Subheadline */}
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-up" style={{ animationDelay: "0.2s" }}>
-              Sin azúcar · Sin gluten · Sin refinados · 100% Vegana
+              {etiquetas.subheadline}
             </p>
 
             {/* Features */}
@@ -144,15 +145,15 @@ const Hero = () => {
                 </div>
               )}
 
-              {/* Floating badges */}
-              <div className="absolute top-12 -left-4 bg-card rounded-2xl shadow-card px-4 py-3 animate-float">
+              {/* Floating badges - min-width para que el texto no se corte, colores legibles */}
+              <div className="absolute top-12 -left-4 min-w-[100px] bg-card rounded-2xl shadow-card px-4 py-3 animate-float border border-border">
                 <p className="text-xs text-muted-foreground">{etiquetas.floating_1_label}</p>
                 <p className="font-display font-semibold text-primary">{etiquetas.floating_1_value}</p>
               </div>
               
-              <div className="absolute bottom-20 -right-4 bg-card rounded-2xl shadow-card px-4 py-3 animate-float" style={{ animationDelay: "1s" }}>
+              <div className="absolute bottom-20 -right-4 min-w-[100px] bg-card rounded-2xl shadow-card px-4 py-3 animate-float border border-border" style={{ animationDelay: "1s" }}>
                 <p className="text-xs text-muted-foreground">{etiquetas.floating_2_label}</p>
-                <p className="font-display font-semibold text-accent-foreground">{etiquetas.floating_2_value}</p>
+                <p className="font-display font-semibold text-primary">{etiquetas.floating_2_value}</p>
               </div>
             </div>
           </div>

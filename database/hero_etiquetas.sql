@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS hero_etiquetas (
   feature_2_text TEXT NOT NULL DEFAULT 'Vegano',
   feature_3_icon TEXT NOT NULL DEFAULT 'Sparkles',
   feature_3_text TEXT NOT NULL DEFAULT 'Sin gluten',
+  subheadline TEXT NOT NULL DEFAULT 'Sin azúcar · Sin gluten · Sin refinados · 100% Vegana',
+  fondo_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -51,12 +53,14 @@ INSERT INTO hero_etiquetas (
   floating_2_label, floating_2_value,
   feature_1_icon, feature_1_text,
   feature_2_icon, feature_2_text,
-  feature_3_icon, feature_3_text
+  feature_3_icon, feature_3_text,
+  subheadline
 )
 SELECT
   'Sin Azúcar', '100%',
   'Vegano', '🌱',
   'Heart', 'Apto diabéticos',
   'Leaf', 'Vegano',
-  'Sparkles', 'Sin gluten'
+  'Sparkles', 'Sin gluten',
+  'Sin azúcar · Sin gluten · Sin refinados · 100% Vegana'
 WHERE NOT EXISTS (SELECT 1 FROM hero_etiquetas LIMIT 1);

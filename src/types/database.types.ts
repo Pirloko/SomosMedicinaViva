@@ -421,6 +421,8 @@ export interface Database {
           feature_2_text: string
           feature_3_icon: string
           feature_3_text: string
+          subheadline: string
+          fondo_url: string | null
           created_at: string
           updated_at: string
         }
@@ -436,6 +438,8 @@ export interface Database {
           feature_2_text?: string
           feature_3_icon?: string
           feature_3_text?: string
+          subheadline?: string
+          fondo_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -451,6 +455,8 @@ export interface Database {
           feature_2_text?: string
           feature_3_icon?: string
           feature_3_text?: string
+          subheadline?: string
+          fondo_url?: string | null
           created_at?: string
           updated_at?: string
         }
