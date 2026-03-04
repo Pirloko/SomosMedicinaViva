@@ -221,10 +221,6 @@ const AdminHeroCarousel = () => {
               </p>
             </div>
           </div>
-          <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto min-h-[44px] shrink-0">
-            <Plus className="w-4 h-4 mr-2" />
-            Nueva Imagen
-          </Button>
         </div>
       </header>
 
@@ -391,15 +387,21 @@ const AdminHeroCarousel = () => {
 
         {/* Info Card */}
         <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-xl">
-          <div className="flex items-start gap-3">
-            <ImageIcon className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-            <div className="text-sm text-foreground min-w-0">
-              <p className="font-semibold mb-1">Sobre las imágenes de portada</p>
-              <p className="text-muted-foreground">
-                Las imágenes activas se mostrarán en la portada de la web (la primera pantalla que ven los clientes).
-                Cambiarán solas cada 2 segundos. Recomendamos usar 3 a 5 imágenes.
-              </p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+              <ImageIcon className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+              <div className="text-sm text-foreground min-w-0">
+                <p className="font-semibold mb-1">Sobre las imágenes de portada</p>
+                <p className="text-muted-foreground">
+                  Las imágenes activas se mostrarán en la portada de la web (la primera pantalla que ven los clientes).
+                  Cambiarán solas cada 2 segundos. Recomendamos usar 3 a 5 imágenes.
+                </p>
+              </div>
             </div>
+            <Button onClick={() => handleOpenDialog()} className="shrink-0 min-h-[44px] w-full sm:w-auto" size="default">
+              <Plus className="w-4 h-4 mr-2" />
+              Nueva imagen de portada
+            </Button>
           </div>
         </div>
 
