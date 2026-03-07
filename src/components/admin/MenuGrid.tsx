@@ -24,6 +24,7 @@ interface MenuItem {
   icon: LucideIcon
   href: string
   color: string
+  hidden?: boolean
 }
 
 interface MenuGridProps {
@@ -128,12 +129,15 @@ const MenuGrid = memo(({ onNavigate }: MenuGridProps) => {
       icon: Users,
       href: '/admin/usuarios',
       color: 'bg-violet-500',
+      hidden: true, // Oculto por ahora; quitar hidden para volver a mostrar
     },
   ], [])
 
+  const visibleItems = menuItems.filter((item) => !item.hidden)
+
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {menuItems.map((item) => {
+      {visibleItems.map((item) => {
         const Icon = item.icon
         return (
           <Card 
