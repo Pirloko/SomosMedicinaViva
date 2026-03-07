@@ -42,7 +42,7 @@ export const useProductosCriticos = () => {
 }
 
 // ============================================
-// REGISTRAR PRODUCCIÓN
+// REGISTRAR PRODUCCIÓN (con receta / descuenta ingredientes)
 // ============================================
 
 export const useRegistrarProduccion = () => {
@@ -59,7 +59,6 @@ export const useRegistrarProduccion = () => {
       cantidad: number
       motivo?: string 
     }) => {
-      // Llamar a la función de PostgreSQL
       const { data, error } = await supabase.rpc('registrar_produccion', {
         p_producto_id: producto_id,
         p_cantidad: cantidad,
@@ -79,6 +78,7 @@ export const useRegistrarProduccion = () => {
       queryClient.invalidateQueries({ queryKey: ['ingredientes'] })
       queryClient.invalidateQueries({ queryKey: ['ingredientes-admin'] })
       queryClient.invalidateQueries({ queryKey: ['ingredientes-criticos'] })
+      queryClient.invalidateQueries({ queryKey: ['stock-movimientos'] })
       toast({
         title: '✅ Producción registrada',
         description: 'Stock de producto actualizado e ingredientes descontados',
@@ -89,6 +89,56 @@ export const useRegistrarProduccion = () => {
         variant: 'destructive',
         title: '❌ Error en producción',
         description: error.message || 'No se pudo registrar la producción. Verifica que haya suficientes ingredientes.',
+      })
+    },
+  })
+}
+
+// ============================================
+// REGISTRAR PRODUCCIÓN SIMPLE (solo stock producto, sin ingredientes)
+// ============================================
+
+export const useRegistrarProduccionSimple = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+
+  return useMutation({
+    mutationFn: async ({
+      producto_id,
+      cantidad,
+      motivo = 'Producción del día',
+    }: {
+      producto_id: string
+      cantidad: number
+      motivo?: string
+    }) => {
+      const { data, error } = await supabase.rpc('registrar_produccion_simple', {
+        p_producto_id: producto_id,
+        p_stock_producido: cantidad,
+        p_motivo: motivo || 'Producción del día',
+      })
+
+      if (error) {
+        console.error('Error RPC:', error)
+        throw new Error(error.message || 'Error al registrar producción')
+      }
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['productos'] })
+      queryClient.invalidateQueries({ queryKey: ['productos-admin'] })
+      queryClient.invalidateQueries({ queryKey: ['productos-criticos'] })
+      queryClient.invalidateQueries({ queryKey: ['stock-movimientos'] })
+      toast({
+        title: '✅ Producción registrada',
+        description: 'Stock del producto actualizado correctamente',
+      })
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: 'destructive',
+        title: '❌ Error',
+        description: error.message || 'No se pudo registrar la producción',
       })
     },
   })
