@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { MessageCircle, Sparkles, Heart, Leaf, MapPin, CheckCircle2, Star, LucideIcon } from "lucide-react";
+import { MessageCircle, Sparkles, Heart, Leaf, CheckCircle2, Star, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useHeroImagenes } from "@/hooks/useHeroImagenes";
 import { useHeroEtiquetas, getDefaultHeroEtiquetas } from "@/hooks/useHeroEtiquetas";
@@ -166,12 +166,6 @@ const Hero = () => {
             </Button>
             <Button variant="outline" size="xl" className="min-h-[48px] sm:min-h-0 w-full sm:w-auto" asChild>
               <a href="#catalogo">Ver Catálogo</a>
-            </Button>
-            <Button variant="outline" size="xl" className="min-h-[48px] sm:min-h-0 w-full sm:w-auto border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
-              <a href="#puntos-venta">
-                <MapPin className="w-5 h-5 shrink-0" />
-                Puntos de Venta
-              </a>
             </Button>
           </div>
         </div>

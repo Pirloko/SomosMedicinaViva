@@ -1,14 +1,15 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useId } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { uploadImage, validateImageFile } from '@/lib/storage'
+import { compressImageToWebP, type ImageUploadFolder } from '@/lib/imageCompress'
 import { useToast } from '@/hooks/use-toast'
 import { Upload, Loader2, X, Image as ImageIcon } from 'lucide-react'
 
 interface ImageUploadProps {
   currentImageUrl?: string | null
   onImageUploaded: (url: string) => void
-  folder: 'productos' | 'ingredientes' | 'otros'
+  folder: ImageUploadFolder
   label?: string
 }
 
@@ -16,13 +17,21 @@ const ImageUpload = ({ currentImageUrl, onImageUploaded, folder, label = 'Imagen
   const [isUploading, setIsUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const previewObjectUrlRef = useRef<string | null>(null)
   const { toast } = useToast()
+  const inputId = useId()
+
+  const revokePreviewObjectUrl = () => {
+    if (previewObjectUrlRef.current) {
+      URL.revokeObjectURL(previewObjectUrlRef.current)
+      previewObjectUrlRef.current = null
+    }
+  }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validar archivo
     const validation = validateImageFile(file)
     if (!validation.valid) {
       toast({
@@ -33,37 +42,45 @@ const ImageUpload = ({ currentImageUrl, onImageUploaded, folder, label = 'Imagen
       return
     }
 
-    // Mostrar preview local
+    revokePreviewObjectUrl()
     const localPreview = URL.createObjectURL(file)
+    previewObjectUrlRef.current = localPreview
     setPreviewUrl(localPreview)
 
     try {
       setIsUploading(true)
-      
-      // Subir a Supabase Storage
-      const publicUrl = await uploadImage(file, folder)
-      
+
+      const webpFile = await compressImageToWebP(file, folder)
+      const publicUrl = await uploadImage(webpFile, folder)
+
       if (publicUrl) {
+        revokePreviewObjectUrl()
         onImageUploaded(publicUrl)
         setPreviewUrl(publicUrl)
         toast({
           title: '✅ Imagen subida',
-          description: 'La imagen se ha cargado correctamente',
+          description: `Optimizada a WebP (${(webpFile.size / 1024).toFixed(0)} KB)`,
         })
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'No se pudo subir la imagen'
       toast({
         variant: 'destructive',
         title: '❌ Error al subir imagen',
-        description: error.message || 'No se pudo subir la imagen',
+        description: message,
       })
+      revokePreviewObjectUrl()
       setPreviewUrl(currentImageUrl || null)
     } finally {
       setIsUploading(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
   }
 
   const handleRemoveImage = () => {
+    revokePreviewObjectUrl()
     setPreviewUrl(null)
     onImageUploaded('')
     if (fileInputRef.current) {
@@ -74,10 +91,9 @@ const ImageUpload = ({ currentImageUrl, onImageUploaded, folder, label = 'Imagen
   return (
     <div className="space-y-4">
       {label ? (
-        <Label>{label}</Label>
+        <Label htmlFor={inputId}>{label}</Label>
       ) : null}
 
-      {/* Preview de Imagen */}
       {previewUrl && (
         <div className="relative w-full aspect-square max-w-xs mx-auto rounded-lg overflow-hidden border-2 border-border">
           <img
@@ -100,12 +116,12 @@ const ImageUpload = ({ currentImageUrl, onImageUploaded, folder, label = 'Imagen
       <div className="space-y-2">
         <div className="flex items-center gap-4">
           <input
+            id={inputId}
             ref={fileInputRef}
             type="file"
             accept="image/jpeg,image/jpg,image/png,image/webp"
             onChange={handleFileChange}
             className="hidden"
-            id="file-upload"
             disabled={isUploading}
           />
           <Button
@@ -118,7 +134,7 @@ const ImageUpload = ({ currentImageUrl, onImageUploaded, folder, label = 'Imagen
             {isUploading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Subiendo...
+                Comprimiendo y subiendo...
               </>
             ) : (
               <>
@@ -132,7 +148,7 @@ const ImageUpload = ({ currentImageUrl, onImageUploaded, folder, label = 'Imagen
           <ImageIcon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
           <div className="text-xs text-muted-foreground">
             <p className="font-medium mb-1">Formatos permitidos:</p>
-            <p>JPG, JPEG, PNG, WEBP (máximo 5MB)</p>
+            <p>JPG, JPEG, PNG o WEBP (hasta 15 MB). Se redimensionan y guardan como WebP para carga rápida y menor consumo.</p>
           </div>
         </div>
       </div>
@@ -141,4 +157,3 @@ const ImageUpload = ({ currentImageUrl, onImageUploaded, folder, label = 'Imagen
 }
 
 export default ImageUpload
-

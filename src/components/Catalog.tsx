@@ -10,36 +10,68 @@ import {
 } from "@/components/ui/dialog";
 import { useProducts } from "@/hooks/useProducts";
 import { useCategorias } from "@/hooks/useCategorias";
-import { Loader2, AlertCircle, ShoppingCart, X } from "lucide-react";
+import { Loader2, ShoppingCart, X, Sparkles } from "lucide-react";
 import { Database } from "@/types/database.types";
 
 type Product = Database['public']['Tables']['productos']['Row']
 
-const Catalog = () => {
+/** Catálogo sin API: mensaje inmediato (poner false cuando Supabase vuelva) */
+const CATALOG_MAINTENANCE_ONLY = true
+
+const openWhatsAppPedido = () => {
+  const message = `Hola, acabo de visitar somosmedicinaviva.cl y me gustaría realizar un pedido`
+  window.open(`https://wa.me/56978738705?text=${encodeURIComponent(message)}`, "_blank")
+}
+
+const CatalogMaintenanceMessage = () => (
+  <div className="flex flex-col items-center justify-center py-16 sm:py-20 max-w-lg mx-auto text-center px-4">
+    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/15 text-primary mb-6">
+      <Sparkles className="w-8 h-8" />
+    </div>
+    <p className="font-display text-xl sm:text-2xl font-semibold text-foreground mb-3">
+      Estamos trabajando en nuevas mejoras
+    </p>
+    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed mb-8 max-w-md">
+      Muy pronto podrás ver todo nuestro catálogo aquí. Mientras tanto, escríbenos por WhatsApp y con gusto te ayudamos con tu pedido.
+    </p>
+    <Button variant="whatsapp" size="lg" onClick={openWhatsAppPedido}>
+      <ShoppingCart className="w-5 h-5" />
+      Consultar por WhatsApp
+    </Button>
+  </div>
+)
+
+const CatalogHeader = () => (
+  <div className="text-center mb-12">
+    <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+      Nuestro Catálogo
+    </h2>
+    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+      Productos artesanales elaborados con ingredientes naturales y mucho amor
+    </p>
+  </div>
+)
+
+const CatalogMaintenanceView = () => (
+  <section id="catalogo" className="section-padding bg-background">
+    <div className="container-custom">
+      <CatalogHeader />
+      <CatalogMaintenanceMessage />
+    </div>
+  </section>
+)
+
+const CatalogWithData = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  
-  // 🔥 Obtener productos y categorías desde Supabase
+
   const { data: products, isLoading, error } = useProducts(activeCategory);
   const { data: categorias } = useCategorias();
-
-  const handleWhatsApp = (product: Product) => {
-    const message = `Hola, acabo de visitar somosmedicinaviva.cl y me gustaría realizar un pedido`
-    window.open(`https://wa.me/56978738705?text=${encodeURIComponent(message)}`, "_blank")
-  };
 
   return (
     <section id="catalogo" className="section-padding bg-background">
       <div className="container-custom">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Nuestro Catálogo
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Productos artesanales elaborados con ingredientes naturales y mucho amor
-          </p>
-        </div>
+        <CatalogHeader />
 
         {/* Categories */}
         {categorias && categorias.length > 0 && (
@@ -68,14 +100,22 @@ const Catalog = () => {
           </div>
         )}
 
-        {/* Error State */}
+        {/* Estado cuando el catálogo no está disponible */}
         {error && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <AlertCircle className="w-12 h-12 text-destructive mb-4" />
-            <p className="text-destructive font-semibold mb-2">Error al cargar productos</p>
-            <p className="text-muted-foreground text-sm">
-              Por favor, intenta recargar la página
+          <div className="flex flex-col items-center justify-center py-16 sm:py-20 max-w-lg mx-auto text-center px-4">
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/15 text-primary mb-6">
+              <Sparkles className="w-8 h-8" />
+            </div>
+            <p className="font-display text-xl sm:text-2xl font-semibold text-foreground mb-3">
+              Estamos trabajando en nuevas mejoras
             </p>
+            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed mb-8 max-w-md">
+              Muy pronto podrás ver todo nuestro catálogo aquí. Mientras tanto, escríbenos por WhatsApp y con gusto te ayudamos con tu pedido.
+            </p>
+            <Button variant="whatsapp" size="lg" onClick={openWhatsAppPedido}>
+              <ShoppingCart className="w-5 h-5" />
+              Consultar por WhatsApp
+            </Button>
           </div>
         )}
 
@@ -235,7 +275,7 @@ const Catalog = () => {
                   variant="whatsapp" 
                   size="lg"
                   className="w-full"
-                  onClick={() => handleWhatsApp(selectedProduct)}
+                  onClick={openWhatsAppPedido}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Hacer Pedido
@@ -252,5 +292,7 @@ const Catalog = () => {
     </section>
   );
 };
+
+const Catalog = () => (CATALOG_MAINTENANCE_ONLY ? <CatalogMaintenanceView /> : <CatalogWithData />);
 
 export default Catalog;

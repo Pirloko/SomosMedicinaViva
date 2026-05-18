@@ -5,12 +5,7 @@ import { Button } from "@/components/ui/button";
 const navLinks = [
   { href: "#inicio", label: "Inicio" },
   { href: "#catalogo", label: "Catálogo" },
-  { href: "#beneficios", label: "Apto Para" },
-  { href: "#ingredientes", label: "Ingredientes" },
-  { href: "#nosotros", label: "Nosotros" },
   { href: "#delivery", label: "Delivery" },
-  { href: "#puntos-venta", label: "Puntos de Venta" },
-  { href: "#contacto", label: "Contacto" },
 ];
 
 const Navbar = () => {

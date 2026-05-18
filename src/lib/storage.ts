@@ -3,9 +3,12 @@ import { supabase } from './supabase'
 // Nombre del bucket para imágenes
 const BUCKET_NAME = 'imagenes'
 
-// Tipos de archivo permitidos
+// Tipos de archivo permitidos (entrada antes de comprimir a WebP)
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+/** Máximo del archivo original que el usuario elige (se comprime en cliente antes de subir) */
+const MAX_INPUT_FILE_SIZE = 15 * 1024 * 1024 // 15MB
+/** Máximo del archivo ya comprimido que se envía a Storage */
+const MAX_UPLOAD_FILE_SIZE = 1.5 * 1024 * 1024 // 1.5MB
 
 /**
  * Subir imagen a Supabase Storage
@@ -15,25 +18,25 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
  */
 export const uploadImage = async (file: File, folder: string = 'productos'): Promise<string | null> => {
   try {
-    // Validar tipo de archivo
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
       throw new Error('Tipo de archivo no permitido. Usa: JPG, PNG o WEBP')
     }
 
-    // Validar tamaño
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error('El archivo es muy grande. Máximo 5MB')
+    if (file.size > MAX_UPLOAD_FILE_SIZE) {
+      throw new Error(
+        `La imagen comprimida sigue siendo muy grande (${(file.size / 1024 / 1024).toFixed(2)}MB). Máximo ${(MAX_UPLOAD_FILE_SIZE / 1024 / 1024).toFixed(1)}MB`
+      )
     }
 
-    // Generar nombre único para el archivo
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+    // Siempre WebP en storage para menor egress y mejor caché
+    const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.webp`
 
     // Subir archivo a Supabase Storage
     const { data, error } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(fileName, file, {
-        cacheControl: '3600',
+        cacheControl: '31536000',
+        contentType: 'image/webp',
         upsert: false,
       })
 
@@ -105,10 +108,10 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
     }
   }
 
-  if (file.size > MAX_FILE_SIZE) {
+  if (file.size > MAX_INPUT_FILE_SIZE) {
     return {
       valid: false,
-      error: `El archivo es muy grande (${(file.size / 1024 / 1024).toFixed(2)}MB). Máximo 5MB`,
+      error: `El archivo es muy grande (${(file.size / 1024 / 1024).toFixed(2)}MB). Máximo ${(MAX_INPUT_FILE_SIZE / 1024 / 1024).toFixed(0)}MB (se comprimirá a WebP al subir)`,
     }
   }
 

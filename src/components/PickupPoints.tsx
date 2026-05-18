@@ -10,7 +10,7 @@ const PickupPoints = () => {
       <div className="container-custom">
         {/* Header */}
         <div className="text-center mb-12">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+          <span className="inline-block px-4 py-2 rounded-full bg-primary text-primary-foreground font-display font-semibold text-sm shadow-soft mb-6">
             Puntos de Venta
           </span>
           
